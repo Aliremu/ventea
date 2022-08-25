@@ -28,9 +28,9 @@ const scene = new VENTEA.Scene();
 scene.camera = camera;
 
 const ground = scene.createEntity();
-ground.addComponent(MeshRenderer, cube);
-ground.addComponent(BoxCollider, { x: 100, y: 1, z: 100 });
-ground.addComponent(RigidBody, { type: 'static' });
+ground.addComponent(VENTEA.Components.MeshRenderer, cube);
+ground.addComponent(VENTEA.Components.BoxCollider, { x: 100, y: 1, z: 100 });
+ground.addComponent(VENTEA.Components.RigidBody, { type: 'static' });
 
 const height = 5;
 
