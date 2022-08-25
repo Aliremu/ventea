@@ -3,6 +3,24 @@ Javascript modules based game engine with WebGL
 
 ![Example](https://xirei.moe/uploader/?f=s0jauiww.jpg)
 
+## Features
+- [x] GLB / GLTF Mesh loading and rendering
+- [x] ImGUI debug layer
+- [x] Resource loading and management
+- [x] Built in Cube, Sphere and Capsule meshes
+- [x] Procedural Terrain generation
+- [x] Multi-threaded physics using NVidia PhysX WASM port by ashconnell
+- [x] Entity Component System using bitECS
+- [x] MeshRenderer, MeshCollider, BoxCollider, SphereCollider, RigidBody, DirectionalLight components
+- [x] Shader support
+- [x] Cascaded Shadow Maps
+- [x] Bloom Post Processing Effect
+
+## TODO
+- [ ] Support for Physically Based Rendering
+- [ ] Volumetric Clouds
+- [ ] AI Pathfinding
+
 ## Usage/Examples
 
 ```javascript
