@@ -48,7 +48,7 @@ for (let y = 0; y < height; y++) {
     }
 }
 
-let shader = await VENTEA.Shader.create('./assets/shader/shader.vert', './assets/shader/shader.frag');
+const shader = await VENTEA.Shader.create('./assets/shader/shader.vert', './assets/shader/shader.frag');
 
 const loop = (time) => {
     control.update();
