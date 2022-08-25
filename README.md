@@ -9,12 +9,12 @@ Javascript modules based game engine with WebGL
 import * as VENTEA from 'Ventea.js'
 
 const canvas = document.getElementById('surface');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-  canvas.onclick = () => {
-      canvas.requestPointerLock();
-  }
+canvas.onclick = () => {
+    canvas.requestPointerLock();
+}
 
 const engine = new VENTEA.Engine(canvas, window.innerWidth, window.innerHeight);
 await engine.init();
@@ -51,16 +51,15 @@ for (let y = 0; y < height; y++) {
 let shader = await VENTEA.Shader.create('./assets/shader/shader.vert', './assets/shader/shader.frag');
 
 const loop = (time) => {
-
     control.update();
 
-    VENTEA.Renderer.startDebug(scene, time, canvas);
+    // VENTEA.Renderer.startDebug(scene, time, canvas);
 
     engine.surface.resize(window.innerWidth, window.innerHeight);
 
     VENTEA.Renderer.renderScene(shader, scene, time);
 
-    VENTEA.Renderer.endDebug();
+    // VENTEA.Renderer.endDebug();
 
     stateReset(gl);
 
