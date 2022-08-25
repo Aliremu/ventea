@@ -130,7 +130,11 @@ vec3 UpSample(sampler2D sampler, vec2 texCoord) {
 //float4 _Threshold; x: threshold value (linear), y: threshold - knee, z: knee * 2, w: 0.25 / knee
 //float4 _Params; x: clamp, yzw: unused
 vec3 Prefilter(vec4 color) {
-    return QuadraticThreshold(color, 1.0, vec3(0.5, 1.0, 0.5)).rgb;
+    float threshold = 20.5;
+    float knee = 0.5;
+    vec3 params = vec3(threshold - knee, knee * 2.0, 0.25 / knee);
+
+    return QuadraticThreshold(color, 1.0, params).rgb;
 }
 
 void main() {

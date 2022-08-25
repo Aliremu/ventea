@@ -20,7 +20,7 @@ out vec4 v_FragPosLightSpace;
 uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Projection;
-uniform mat4 LightSpace;
+uniform mat4 LightSpace[3];
 
 void main() {
     vec3 scale = vec3(length(Model[0]), length(Model[1]), length(Model[2]));
@@ -28,9 +28,10 @@ void main() {
     v_TexCoord = TexCoord;
     v_Normal = mat3(transpose(inverse(Model))) * Normal;  
     v_FragPos = vec3(Model * vec4(Position, 1.0));
-    v_NoModel = scale * Normal;
-    v_Scale = scale * Position;
-    v_FragPosLightSpace = LightSpace * vec4(v_FragPos, 1.0);
+    v_NoModel = vec3(View * Model * vec4(Position, 1.0));
+    v_Scale   = vec3(View * Model * vec4(Normal, 1.0));
+
+    v_FragPosLightSpace = Model * vec4(v_FragPos, 1.0);
 
     gl_Position = Projection * View * Model * vec4(Position, 1.0);
 }

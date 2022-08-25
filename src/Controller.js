@@ -27,6 +27,8 @@ export class Controller {
         });
 
         surface.bind('mousemove', (e) => {
+            if(!document.pointerLockElement) return;
+
             let velX = e.movementX / 10;
             let velY = e.movementY / 10;
 

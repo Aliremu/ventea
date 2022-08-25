@@ -36,12 +36,12 @@ const lerp = (a, b, t) => {
     const y = a.y * (1 - t) + b.y * t;
     const z = a.z * (1 - t) + b.z * t;
 
-    return { x: x, y: y, z: z};
+    return { x: x, y: y, z: z };
 }
 
 class Controller {
     controller = null;
-    vel = { x: 0, y: 0, z: 0 }; 
+    vel = { x: 0, y: 0, z: 0 };
     onGround = false;
 
     constructor() {
@@ -73,11 +73,11 @@ class Controller {
 
         this.controller = manager.createController(controllerDesc);
         this.controller.setSimulationFilterData(filter);
-        this.controller.setPosition({x: 0, y: 100, z: 0});
+        this.controller.setPosition({ x: 0, y: 100, z: 0 });
     }
 
     setVelocity(vel) {
-        if(vel.y == 0) vel.y = this.vel.y;
+        if (vel.y == 0) vel.y = this.vel.y;
 
         this.vel = lerp(this.vel, vel, 0.3);
         this.vel.y = vel.y;
@@ -99,7 +99,7 @@ class Controller {
 
         let wtf = PhysX.PxSweepCallback.implement({
             processTouches: (obj) => {
-                if(obj.getActor().$$.ptr != this.controller.getActor().$$.ptr) {
+                if (obj.getActor().$$.ptr != this.controller.getActor().$$.ptr) {
                     status = true;
                 }
             }
@@ -117,10 +117,10 @@ class Controller {
 
         this.vel.y -= 0.981 * timestep;
         let controllerFilter = new PhysX.PxControllerFilters(null, null, null);
-        controllerFilter.mFilterFlags = new PhysX.PxQueryFlags(PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value);
+        controllerFilter.mFilterFlags = new PhysX.PxQueryFlags(PhysX.PxQueryFlag.eSTATIC.value);
         this.controller.move(this.vel, 0, timestep, controllerFilter, null);
 
-        if(status) {
+        if (status) {
             //console.log(status);
             this.onGround = true;
             this.vel.y = 0;
@@ -134,7 +134,7 @@ class Controller {
     }
 }
 
-const setupFiltering = function(shape, group, mask) {
+const setupFiltering = function (shape, group, mask) {
     const filterData = new PhysX.PxFilterData(group, mask, 0, 0);
     shape.setSimulationFilterData(filterData);
     shape.setQueryFilterData(filterData);
@@ -356,7 +356,7 @@ class Engine {
 
         let body;
 
-        switch(type) {
+        switch (type) {
             case 'dynamic': {
                 body = physics.createRigidDynamic(transform);
                 body.setMass(density);
@@ -375,7 +375,7 @@ class Engine {
         setupFiltering(shape, 1, 1);
 
         body.attachShape(shape);
-        
+
         body.size = size;
         body.shape = shape;
         body.eid = eid;
@@ -383,6 +383,74 @@ class Engine {
         scene.addActor(body, null);
 
         return body;
+    }
+
+    static addMesh(o = {}) {
+        let pos = o.pos ?? [0, 0, 0];
+        let rot = o.rot ?? [0, 0, 0, 1];
+        let size = o.size ?? [1, 1, 1];
+        let density = o.density ?? 1;
+        let friction = o.friction ?? 0.5;
+        let restitution = o.restitution ?? 0.2;
+        let type = o.type ?? 'dynamic';
+        let eid = o.eid ?? 0;
+
+        let indices = o.indices;
+
+        for (const ind of indices) {
+            o.indices = ind;
+            let geometry = Engine.createMesh(o);
+
+            const material = physics.createMaterial(friction, friction, restitution);
+            const flags = new PhysX.PxShapeFlags(
+                PhysX.PxShapeFlag.eSCENE_QUERY_SHAPE.value |
+                PhysX.PxShapeFlag.eSIMULATION_SHAPE.value
+            );
+            const shape = physics.createShape(geometry, material, false, flags);
+            const transform = {
+                translation: {
+                    x: pos[0],
+                    y: pos[1],
+                    z: pos[2]
+                },
+                rotation: {
+                    w: rot[3],
+                    x: rot[0],
+                    y: rot[1],
+                    z: rot[2]
+                }
+            };
+
+
+            let body;
+
+            switch (type) {
+                case 'dynamic': {
+                    body = physics.createRigidDynamic(transform);
+                    body.setMass(density);
+                    break;
+                }
+                case 'static': {
+                    body = physics.createRigidStatic(transform);
+                    break;
+                }
+                default: {
+                    body = physics.createRigidStatic(transform);
+                    break;
+                }
+            }
+
+            setupFiltering(shape, 1, 1);
+
+            body.attachShape(shape);
+
+            body.size = size;
+            body.shape = shape;
+            body.eid = eid;
+
+            scene.addActor(body, null);
+            bodies.push(body);
+        }
     }
 
     static add(o = {}) {
@@ -466,7 +534,7 @@ class Engine {
             z = dir[2] / 2;
         }
 
-        if(!controller.onGround) y = 0;
+        if (!controller.onGround) y = 0;
 
         controller.setVelocity({ x: x, y: y, z: z });
     }

@@ -1,4 +1,5 @@
 import { mat4 } from "../lib/gl-matrix/index.js";
+import { AssetManager } from "./AssetManager.js";
 import { Texture } from "./Texture.js";
 
 export class Primitive {
@@ -7,20 +8,18 @@ export class Primitive {
     #buffers = {};
 
     #count;
-    #texture;
-    #norm;
     dirty = false;
 
     positions;
     indices;
+    material;
 
-    constructor(positions, texcoords, normals, indices, image = null, norm = null, transform = null) {
-        this.#texture = image;
-        this.#norm = norm;
+    constructor(positions, texcoords, normals, indices, material = null) {
         this.#count = indices.length;
 
         this.positions = positions;
         this.indices = indices;
+        this.material = material;
 
         this.#vao = gl.createVertexArray();
         gl.bindVertexArray(this.#vao);
@@ -74,23 +73,7 @@ export class Primitive {
 
     draw() {
         gl.bindVertexArray(this.#vao);
-
-        if (!this.dirty) {
-            if (this.#texture != null) {
-                this.#texture.bindTexture(0);
-            } else {
-                Texture.NO_TEXTURE.bindTexture(0);
-            }
-
-            if (this.#norm != null) {
-                this.#norm.bindTexture(1);
-            } else {
-                Texture.NORMAL_TEXTURE.bindTexture(1);
-            }
-        }
-
         gl.drawElements(gl.TRIANGLES, this.#count, gl.UNSIGNED_INT, 0);
-
         gl.bindVertexArray(null);
     }
 
@@ -164,99 +147,35 @@ export class Primitive {
 }
 export class Mesh {
     primitives = [];
+    materials = [];
+    assetId = 0;
 
-    constructor(primitives) {
+    constructor(primitives, materials) {
         this.primitives = primitives;
+        this.materials = materials;
+        
+        this.assetId = AssetManager.ASSETS.length;
+        AssetManager.ASSETS.push(this);
     }
 
     draw() {
         for (const primitive of this.primitives) {
-            //console.log(primitive);
+            if(primitive.material != null) {
+                const material = this.materials[primitive.material];
+
+                if('baseColorTexture' in material) {
+                    material.baseColorTexture.bindTexture(0);
+                }
+
+                if('normalTexture' in material) {
+                    material.normalTexture.bindTexture(1);
+                }
+            } else {
+                Texture.NO_TEXTURE.bindTexture(0);
+                Texture.NORMAL_TEXTURE.bindTexture(1);
+            }
+
             primitive.draw();
         }
-    }
-
-    static traverse(gltf, node, transform, out) {
-        const translation = node.translation ?? [0, 0, 0];
-        const rotation = node.rotation ?? [0, 0, 0, 1];
-        const scale = node.scale ?? [1, 1, 1];
-
-        /*const t = mat4.fromRotationTranslationScale([], rotation, translation, scale);
-
-        const kek = mat4.multiply([], transform, t);*/
-
-        if ('mesh' in node) {
-            out.push([node.mesh, []]);
-        }
-
-        if ('children' in node) {
-            for (const child of node.children) {
-                this.traverse(gltf, gltf.nodes[child], [], out);
-            }
-        }
-    }
-
-    static async create(file, loader) {
-        let asset = await loader.load(file, (a) => {
-            console.log(a.loaded / a.total);
-        });
-
-        window.asset = asset;
-
-        //let times = await asset.accessorData(29);
-        //console.log(new Float32Array(times.buffer, times.byteOffset, times.byteLength / Float32Array.BYTES_PER_ELEMENT));
-        //console.log(await asset.accessorData(30));
-
-        let gltf = asset.gltf;
-        let sceneIndex = gltf.scene | 0;
-        let scene = gltf.scenes[sceneIndex];
-        let rootNodes = scene.nodes;
-
-        let primitives = [];
-
-        console.log(asset);
-
-        /* for (let nodeIndex of rootNodes) {
-            // get to the first primitive
-            let node = gltf.nodes[nodeIndex];
-            let child = gltf.nodes[node.children[0]];
-            let mesh = gltf.meshes[child.mesh];
-
-            console.log(mesh);
-        
-            for(let primitive of mesh.primitives) {
-                primitives.push(await Primitive.create(primitive, asset, gltf));
-            }
-        }*/
-
-        let test = [];
-        Mesh.traverse(gltf, gltf.nodes[gltf.scenes[0].nodes[0]], mat4.identity([]), test);
-
-        for (const [id, transform] of test) {
-            const mesh = gltf.meshes[id];
-            for (let primitive of mesh.primitives) {
-                primitives.push(await Primitive.create(primitive, asset, gltf, transform));
-            }
-        }
-
-        /*for (const node of gltf.nodes) {
-            if ('mesh' in node) {
-                const mesh = gltf.meshes[node.mesh]
-                if (mesh.name == 'MASH3_ReproMesh1_ground_0') continue;
-
-                for (let primitive of mesh.primitives) {
-                    const { translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1] } = node;
-                    const transform = {
-                        translation: translation,
-                        rotation: rotation,
-                        scale: scale
-                    };
-
-                    primitives.push(await Primitive.create(primitive, asset, gltf, transform));
-                }
-            }
-        }*/
-
-        return new Mesh(primitives);
     }
 }

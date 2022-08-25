@@ -1,7 +1,7 @@
 import { Primitive, Mesh } from "./Mesh.js";
 
 export class Sphere extends Mesh {
-    static async create(radius) {
+    constructor(radius = 1.0) {
         let v = [];
         let n = [];
         let t = [];
@@ -49,30 +49,30 @@ export class Sphere extends Mesh {
                 // i[i_i++] = (r + 1) * sectors + (s + 1);
                 // i[i_i++] = (r + 1) * sectors + s;
 
-                i[i_x] = i_y;               i_x++;
-                i[i_x] = i_y + sectors;     i_x++;
-                i[i_x] = i_y + 1;           i_x++;
+                i[i_x] = i_y; i_x++;
+                i[i_x] = i_y + sectors; i_x++;
+                i[i_x] = i_y + 1; i_x++;
                 // second half of QUAD
-                i[i_x] = i_y + sectors;     i_x++;
+                i[i_x] = i_y + sectors; i_x++;
                 i[i_x] = i_y + sectors + 1; i_x++;
-                i[i_x] = i_y + 1;           i_x++;
+                i[i_x] = i_y + 1; i_x++;
             }
 
-            i[i_x] = i_y;               i_x++;
-            i[i_x] = i_y + sectors;     i_x++;
+            i[i_x] = i_y; i_x++;
+            i[i_x] = i_y + sectors; i_x++;
             i[i_x] = i_y + 1 - sectors; i_x++;
             // second half of QUAD
-            i[i_x] = i_y + sectors;     i_x++;
-            i[i_x] = i_y + 1;           i_x++;
+            i[i_x] = i_y + sectors; i_x++;
+            i[i_x] = i_y + 1; i_x++;
             i[i_x] = i_y - sectors + 1; i_x++;
             i_y++;
         }
 
         let positions = new Float32Array(v);
         let texcoords = new Float32Array(t);
-        let normals   = new Float32Array(n);
+        let normals = new Float32Array(n);
         let indices = new Uint32Array(i);
 
-        return new Mesh([new Primitive(positions, texcoords, normals, indices)]);
+        super([new Primitive(positions, texcoords, normals, indices)]);
     }
 }

@@ -32,6 +32,14 @@ import { defineQuery } from "../lib/bitECS/index.mjs";
 import { RigidBody, Position, LastPosition, Size, Velocity, Rotation } from "./Components.js";
 
 export class Physics {
+    static fromShape(id) {
+        return SHAPES[id];
+    }
+
+    static fromBodyType(id) {
+        return BODY_TYPES[id];
+    }
+
     static message(m) {
         let e = m.data;
 

@@ -35,7 +35,7 @@ void main() {
 
   vec3 mapped = vec3(1.0) - exp(-color * 1.0);
   // gamma correction 
-  mapped = pow(mapped, vec3(1.0   / gamma));
+  mapped = pow(mapped, vec3(1.0 / gamma));
 
   vec2 lol =  v_FragPos * (1.0 - v_FragPos.yx);
   float vig = lol.x * lol.y * 15.0;
@@ -44,5 +44,5 @@ void main() {
   //vec4 bloom = texture(u_Bloom, v_FragPos);
 
   //color = mix(color, vec4(0.8, 0.9, 1.0, 1.0), fogAmount);
-  out_Color = vec4(mapped, 1.0) + bloom; //vec4(vig * mapped, 1.0);
+  out_Color = vec4(mapped * vig, 1.0) + bloom; //vec4(vig * mapped, 1.0);
 }

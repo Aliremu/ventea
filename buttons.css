@@ -1,0 +1,132 @@
+*,
+*::after,
+*::before {
+	box-sizing: border-box;
+}
+
+:root {
+	font-size: 18px;
+}
+
+body {
+	margin: 0;
+	--color-text: #111;
+	--color-number: #999;
+	--color-bg: #fff;
+	--color-link: #1352d1;
+	--color-link-hover: #111;
+	color: var(--color-text);
+	background-color: var(--color-bg);
+	font-family: tenon, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+a {
+	text-decoration: none;
+	color: var(--color-link);
+	outline: none;
+}
+
+a:hover {
+	color: var(--color-link-hover);
+	outline: none;
+}
+
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible */
+a:focus,
+button:focus {
+	/* Provide a fallback style for browsers
+	 that don't support :focus-visible */
+	outline: none;
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+	/* Remove the focus indicator on mouse-focus for browsers
+	 that do support :focus-visible */
+}
+
+a:focus-visible,
+button:focus-visible {
+	/* Draw a very noticeable focus style for
+	 keyboard-focus on browsers that do support
+	 :focus-visible */
+	outline: 2px solid #443ffc;
+	outline-offset: 3px;
+}
+
+a:focus-visible {
+	background: none;
+}
+
+.button {
+	pointer-events: auto;
+	cursor: pointer;
+	background: #e7e7e7;
+	border: none;
+	padding: 1.5rem 3rem;
+	margin: 0;
+	font-family: inherit;
+	font-size: inherit;
+	position: relative;
+	display: inline-block;
+}
+
+.button::before,
+.button::after {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.button--fenrir {
+	background: none;
+	padding: 0;
+	-webkit-clip-path: circle(50% at 50% 50%);
+	clip-path: circle(50% at 50% 50%);
+	width: 200px;
+	height: 200px;
+	font-family: aktiv-grotesk-extended, sans-serif;
+	font-weight: 200;
+	text-transform: uppercase;
+	font-size: 0.85rem;
+}
+
+.progress {
+	position: absolute;
+	width: 150px;
+	height: 150px;
+	top: calc(50% - 75px);
+	left: calc(50% - 75px);
+	transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+.button--fenrir:hover .progress {
+	transform: scale3d(1.2, 1.2, 1);
+}
+
+.progress__circle,
+.progress__path {
+	fill: none;
+	stroke: #ffffff;
+	stroke-width: 0.5px;
+}
+
+.button--fenrir:focus-visible .progress__circle {
+	fill: rgba(252,196,63,0.4);
+}
+
+.progress__path {
+	stroke: #5e5e5e;
+	stroke-dasharray: 1.01;
+	stroke-dashoffset: 1.01;
+	transition: stroke-dashoffset 0.4s cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+.button--fenrir:hover .progress__path {
+	stroke-dashoffset: 0;
+}
+

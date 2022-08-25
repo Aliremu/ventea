@@ -2,26 +2,29 @@ import { glMatrix, mat2, mat3, mat4, vec2, vec3, vec4 } from '../lib/gl-matrix/i
 import { Surface } from './Surface.js';
 import { Shader } from './Shader.js';
 import { Camera } from './Camera.js';
+
+import { Resource } from './Resource.js';
 import { Texture } from './Texture.js';
-import { TextureManager } from './TextureManager.js';
+import { Cubemap } from './Cubemap.js';
+
 import { Mesh } from './Mesh.js';
+import { GLTFMesh } from './GLTFMesh.js';
 import { Cube } from './Cube.js';
 import { Sphere } from './Sphere.js';
+import { Capsule } from './Capsule.js';
+
 import { Controller } from './Controller.js';
 import { Framebuffer } from './Framebuffer.js';
 import { Physics } from './Physics.js';
-import { Cubemap } from './Cubemap.js';
-import { Capsule } from './Capsule.js';
 import { Terrain } from './Terrain.js';
 import { Scene } from "./Scene.js";
+import * as Components from "./Components.js";
+
 import { BlurPass } from './BlurPass.js';
 import { BloomPass } from './BloomPass.js';
 import { ShadowPass } from './ShadowPass.js';
-
-import '../lib/gltf-loader/gltf-loader.js';
 import { Renderer } from './Renderer.js';
 
-const { GltfLoader } = window.GltfLoader;
 window.glMatrix = glMatrix;
 window.mat2 = mat2;
 window.mat3 = mat3;
@@ -57,7 +60,7 @@ class Cartesian extends Float32Array {
 
 glMatrix.setMatrixArrayType(Cartesian);
 
-export class Ventea {
+export class Engine {
     scene = null;
     surface = null;
 
@@ -69,6 +72,7 @@ export class Ventea {
     async init() {
         await Texture.init();
         await Physics.init();
+        await Resource.init();
 
         window.Physics = Physics;
         Renderer.init();
@@ -77,12 +81,21 @@ export class Ventea {
     bind(event, func) {
         this.surface.bind(event, func);
     }
-
-    run(time) {
-        this.scene.run(time);
-
-        //requestAnimationFrame((time) => this.run(time));
-    }
 }
 
-export { Mesh, Capsule, Cube, Sphere, Cubemap, Texture, Terrain, GltfLoader, Camera, Shader, Controller, Framebuffer, Scene, BlurPass, BloomPass, ShadowPass, Renderer };
+const IMAGE = 0;
+const GLTF = 1;
+const TEXT = 2;
+const AUDIO = 3;
+
+export { 
+    Mesh, Cube, Sphere, Capsule, GLTFMesh, 
+    Texture, Cubemap,
+    Shader, Framebuffer, BlurPass, BloomPass, ShadowPass,
+    Terrain, 
+    Camera, Controller, Scene, 
+    Renderer, 
+    Physics,
+    Resource, IMAGE, GLTF, TEXT, AUDIO, 
+    Components 
+};

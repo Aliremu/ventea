@@ -1,7 +1,7 @@
 import { Primitive, Mesh } from "./Mesh.js";
 
 export class Capsule extends Mesh {
-    static async create(radius = 0.5, depth = 1, rings = 1, latitudes = 16, longitudes = 32) {
+    constructor(radius = 0.5, depth = 1, rings = 1, latitudes = 16, longitudes = 32) {
         let v = [];
         let n = [];
         let t = [];
@@ -64,8 +64,7 @@ export class Capsule extends Mesh {
         let sTextureCache = new Array(lonsp1);
 
         // Polar vertices.
-        for (let j = 0; j < longitudes; ++j)
-        {
+        for (let j = 0; j < longitudes; ++j) {
             let jf = j;
             let sTexturePolar = 1.0 - ((jf + 0.5) * toTexHorizontal);
             let theta = jf * toTheta;
@@ -94,8 +93,7 @@ export class Capsule extends Mesh {
         }
 
         // Equatorial vertices.
-        for (let j = 0; j < lonsp1; ++j)
-        {
+        for (let j = 0; j < lonsp1; ++j) {
             let sTexture = 1.0 - j * toTexHorizontal;
             sTextureCache[j] = sTexture;
 
@@ -115,7 +113,7 @@ export class Capsule extends Mesh {
             // South equator.
             let idxs = vertOffsetSouthEquator + j;
             v[idxs] = [rtc[0], -halfDepth, -rtc[1]];
-            
+
             t[idxs] = [sTexture, vtAspectSouth];
 
             n[idxs] = [tc[0], 0, -tc[1]];
@@ -125,8 +123,7 @@ export class Capsule extends Mesh {
 
 
         // Hemisphere vertices.
-        for (let i = 0; i < halfLatsn1; ++i)
-        {
+        for (let i = 0; i < halfLatsn1; ++i) {
             let ip1f = i + 1.0;
             let phi = ip1f * toPhi;
 
@@ -157,8 +154,7 @@ export class Capsule extends Mesh {
             let vertCurrLatNorth = vertOffsetNorthHemi + iLonsp1;
             let vertCurrLatSouth = vertOffsetSouthHemi + iLonsp1;
 
-            for (let j = 0; j < lonsp1; ++j)
-            {
+            for (let j = 0; j < lonsp1; ++j) {
                 let jMod = j % longitudes;
 
                 let sTexture = sTextureCache[j];
@@ -177,7 +173,7 @@ export class Capsule extends Mesh {
                 v[idxs] = [rhoCosPhiSouth * tc[0], zOffsetSouth, -rhoCosPhiSouth * tc[1]];
 
                 t[idxs] = [sTexture, tTexSouth];
-                
+
                 n[idxs] = [cosPhiSouth * tc[0], -sinPhiSouth, -cosPhiSouth * tc[1]];
             }
         }
@@ -189,15 +185,13 @@ export class Capsule extends Mesh {
             let toFac = 1.0 / ringsp1;
             let idxCylLat = vertOffsetCylinder;
 
-            for (let h = 1; h < ringsp1; ++h)
-            {
+            for (let h = 1; h < ringsp1; ++h) {
                 let fac = h * toFac;
                 let cmplFac = 1.0 - fac;
                 let tTexture = cmplFac * vtAspectNorth + fac * vtAspectSouth;
                 let z = halfDepth - depth * fac;
 
-                for (let j = 0; j < lonsp1; ++j)
-                {
+                for (let j = 0; j < lonsp1; ++j) {
                     let jMod = j % longitudes;
                     let tc = thetaCartesian[jMod];
                     let rtc = rhoThetaCartesian[jMod];
@@ -230,8 +224,7 @@ export class Capsule extends Mesh {
         let tris = new Array(fsLen);
 
         // Polar caps.
-        for (let i = 0, k = 0, m = triOffsetSouthCap; i < longitudes; ++i, k += 3, m += 3)
-        {
+        for (let i = 0, k = 0, m = triOffsetSouthCap; i < longitudes; ++i, k += 3, m += 3) {
             // North.
             tris[k] = i;
             tris[k + 1] = vertOffsetNorthHemi + i;
@@ -244,8 +237,7 @@ export class Capsule extends Mesh {
         }
 
         // Hemispheres.
-        for (let i = 0, k = triOffsetNorthHemi, m = triOffsetSouthHemi; i < halfLatsn1; ++i)
-        {
+        for (let i = 0, k = triOffsetNorthHemi, m = triOffsetSouthHemi; i < halfLatsn1; ++i) {
             let iLonsp1 = i * lonsp1;
 
             let vertCurrLatNorth = vertOffsetNorthHemi + iLonsp1;
@@ -254,8 +246,7 @@ export class Capsule extends Mesh {
             let vertCurrLatSouth = vertOffsetSouthEquator + iLonsp1;
             let vertNextLatSouth = vertCurrLatSouth + lonsp1;
 
-            for (let j = 0; j < longitudes; ++j, k += 6, m += 6)
-            {
+            for (let j = 0; j < longitudes; ++j, k += 6, m += 6) {
                 // North.
                 let north00 = vertCurrLatNorth + j;
                 let north01 = vertNextLatNorth + j;
@@ -287,13 +278,11 @@ export class Capsule extends Mesh {
         }
 
         // Cylinder.
-        for (let i = 0, k = triOffsetCylinder; i < ringsp1; ++i)
-        {
+        for (let i = 0, k = triOffsetCylinder; i < ringsp1; ++i) {
             let vertCurrLat = vertOffsetNorthEquator + i * lonsp1;
             let vertNextLat = vertCurrLat + lonsp1;
 
-            for (let j = 0; j < longitudes; ++j, k += 6)
-            {
+            for (let j = 0; j < longitudes; ++j, k += 6) {
                 let cy00 = vertCurrLat + j;
                 let cy01 = vertNextLat + j;
                 let cy11 = vertNextLat + j + 1;
@@ -311,9 +300,9 @@ export class Capsule extends Mesh {
 
         let positions = new Float32Array(v.flat());
         let texcoords = new Float32Array(t.flat());
-        let normals   = new Float32Array(n.flat());
+        let normals = new Float32Array(n.flat());
         let indices = new Uint32Array(tris);
 
-        return new Mesh([new Primitive(positions, texcoords, normals, indices)]);
+        super([new Primitive(positions, texcoords, normals, indices)]);
     }
 }

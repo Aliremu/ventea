@@ -34,11 +34,11 @@ export class Terrain {
             test[z] = [];
             for (let x = 0; x < width; x++) {
                 let y = Math.max(0, noise.octaveSimple2(x / width, z / depth, 5) * 0.5 + 0.5);
-                y = 0 * Math.pow(y, Math.E);
+                y = 10 * Math.pow(y, Math.E);
                 //y = y + (y % 15);
 
                 if(Math.abs(x - width / 2) < 120 && Math.abs(z - depth / 2) < 40) {
-                    y = -0.5;
+                    //y = -0.5;
                 }
 
                 test[z][x] = y;
@@ -105,30 +105,15 @@ export class Terrain {
         }
     }
 
-    async createMesh() {
+    createMesh() {
         let primitives = [];
         let limit = 1000;
 
         let positions = new Float32Array(this.vertices.flat());
-
         let normals = new Float32Array(this.normals.flat());
+        let indices = new Uint32Array(this.indices);
 
-        this.dirt_diff = await Texture.create('./assets/dirt_diff.jpg');
-        this.dirt_norm = await Texture.create('./assets/dirt_norm.jpg');
-
-        this.path_diff = await Texture.create('./assets/path_diff.jpg');
-        this.path_norm = await Texture.create('./assets/path_norm.jpg');
-
-        this.rock_diff = await Texture.create('./assets/rock_diff.jpg');
-        this.rock_norm = await Texture.create('./assets/rock_norm.jpg');
-
-        this.snow_diff = await Texture.create('./assets/snow_diff.jpg');
-        this.snow_norm = await Texture.create('./assets/snow_norm.jpg');
-
-        this.noise = await Texture.create('./assets/noise.jpg');
-
-
-        for(let i = 0; i < Math.ceil(this.indices.length / 3 / 50000); i++) {
+        /*for(let i = 0; i < Math.ceil(this.indices.length / 3 / 50000); i++) {
             let idx = i * 3 * 50000;
             let end = Math.min(idx + 150000, this.indices.length);
 
@@ -136,15 +121,13 @@ export class Terrain {
 
             let indices = new Uint32Array(this.indices.slice(idx, end).flat());
 
-            let p = new Primitive(positions, null, normals, indices, this.dirt_diff, this.dirt_norm);
+            let p = new Primitive(positions, null, normals, indices);
             //p.dirty = true;
 
             primitives.push(p);
-        }
-        /*while(this.vertices.length > 0) {
-            
         }*/
 
-        return new Mesh(primitives);
+        return new Mesh([new Primitive(positions, null, normals, indices)]);
+        //return new Mesh(primitives);
     }
 }

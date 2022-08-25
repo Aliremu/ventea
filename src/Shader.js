@@ -34,18 +34,27 @@ export class Shader {
         gl.useProgram(this.#program);
     }
 
+    unbind() {
+        gl.useProgram(null);
+    }
+
     addUniform(location) {
         this.#uniforms[location] = gl.getUniformLocation(this.#program, location);
     }
 
     addUniforms(uniforms = {}) {
         for(const [k, v] in uniforms) {
-            addUniform(k);
-
-            switch(v.length) {
-                case 2: setVec2(k, v); break;
-                case 3: setVec3(k, v); break;
-                case 4: setVec4(k, v); break;
+            this.addUniform(k);
+            
+            if(typeof v === 'number') {
+                this.setInt(k, v);
+            } else {
+                switch(v.length) {
+                    case 2:  this.setVec2(k, v); break;
+                    case 3:  this.setVec3(k, v); break;
+                    case 4:  this.setVec4(k, v); break;
+                    case 16: this.setMat4(k, v); break;
+                }
             }
         }
     }
@@ -64,6 +73,14 @@ export class Shader {
             this.addUniform(location);
         }
         gl.uniform3fv(this.#uniforms[location], value);
+    }
+
+    setVec4(location, value) {
+        //this.bind();
+        if (!(location in this.#uniforms)) {
+            this.addUniform(location);
+        }
+        gl.uniform4fv(this.#uniforms[location], value);
     }
 
     setMat4(location, value) {

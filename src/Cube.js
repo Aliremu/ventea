@@ -1,75 +1,79 @@
 import { Primitive, Mesh } from "./Mesh.js";
 
 export class Cube extends Mesh {
-    static async create() {
+    constructor(x = 1, y = 1, z = 1) {
+        const halfX = x / 2;
+        const halfY = y / 2;
+        const halfZ = z / 2;
+
         const positions = new Float32Array([
-            // Front face
-            -0.5, -0.5, 0.5,
-            0.5, -0.5, 0.5,
-            0.5, 0.5, 0.5,
-            -0.5, 0.5, 0.5,
-        
-            // Back face
-            -0.5, -0.5, -0.5,
-            -0.5, 0.5, -0.5,
-            0.5, 0.5, -0.5,
-            0.5, -0.5, -0.5,
-        
-            // Top face
-            -0.5, 0.5, -0.5,
-            -0.5, 0.5, 0.5,
-            0.5, 0.5, 0.5,
-            0.5, 0.5, -0.5,
-        
-            // Bottom face
-            -0.5, -0.5, -0.5,
-            0.5, -0.5, -0.5,
-            0.5, -0.5, 0.5,
-            -0.5, -0.5, 0.5,
-        
-            // Right face
-            0.5, -0.5, -0.5,
-            0.5, 0.5, -0.5,
-            0.5, 0.5, 0.5,
-            0.5, -0.5, 0.5,
-        
-            // Left face
-            -0.5, -0.5, -0.5,
-            -0.5, -0.5, 0.5,
-            -0.5, 0.5, 0.5,
-            -0.5, 0.5, -0.5,
+             // Front face
+            -halfX, -halfY,  halfZ,
+             halfX, -halfY,  halfZ,
+             halfX,  halfY,  halfZ,
+            -halfX,  halfY,  halfZ,
+
+             // Back face
+            -halfX, -halfY, -halfZ,
+            -halfX,  halfY, -halfZ,
+             halfX,  halfY, -halfZ,
+             halfX, -halfY, -halfZ,
+
+             // Top face
+            -halfX,  halfY, -halfZ,
+            -halfX,  halfY,  halfZ,
+             halfX,  halfY,  halfZ,
+             halfX,  halfY, -halfZ,
+
+             // Bottom face
+            -halfX, -halfY, -halfZ,
+             halfX, -halfY, -halfZ,
+             halfX, -halfY,  halfZ,
+            -halfX, -halfY,  halfZ,
+
+             // Right face
+             halfX, -halfY, -halfZ,
+             halfX,  halfY, -halfZ,
+             halfX,  halfY,  halfZ,
+             halfX, -halfY,  halfZ,
+
+             // Left face
+            -halfX, -halfY, -halfZ,
+            -halfX, -halfY,  halfZ,
+            -halfX,  halfY,  halfZ,
+            -halfX,  halfY, -halfZ,
         ]);
 
         const normals = new Float32Array([
-            0.0,  0.0,  1.0,
-            0.0,  0.0,  1.0,
-            0.0,  0.0,  1.0,
-            0.0,  0.0,  1.0,
-   
-            0.0,  0.0, -1.0,
-            0.0,  0.0, -1.0,
-            0.0,  0.0, -1.0,
-            0.0,  0.0, -1.0,
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
 
-            0.0,  1.0,  0.0,
-            0.0,  1.0,  0.0,
-            0.0,  1.0,  0.0,
-            0.0,  1.0,  0.0,
-   
-            0.0, -1.0,  0.0,
-            0.0, -1.0,  0.0,
-            0.0, -1.0,  0.0,
-            0.0, -1.0,  0.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
 
-            1.0,  0.0,  0.0,
-            1.0,  0.0,  0.0,
-            1.0,  0.0,  0.0,
-            1.0,  0.0,  0.0,
-   
-           -1.0,  0.0,  0.0,
-           -1.0,  0.0,  0.0,
-           -1.0,  0.0,  0.0,
-           -1.0,  0.0,  0.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
         ]);
 
         const texcoords = new Float32Array([
@@ -103,7 +107,7 @@ export class Cube extends Mesh {
             1, 1,
             0, 1
         ]);
-        
+
         const indices = new Uint32Array([
             0, 1, 2, 0, 2, 3,    // front
             4, 5, 6, 4, 6, 7,    // back
@@ -113,6 +117,10 @@ export class Cube extends Mesh {
             20, 21, 22, 20, 22, 23,   // left
         ]);
 
-        return new Mesh([new Primitive(positions, texcoords, normals, indices)]);
+        super([new Primitive(positions, texcoords, normals, indices)]);
+
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 }
