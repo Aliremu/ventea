@@ -1,4 +1,4 @@
-# Ventea
+# Ventea🍃🍵
 Javascript modules based game engine with WebGL
 
 ![Example](https://xirei.moe/uploader/?f=s0jauiww.jpg)
