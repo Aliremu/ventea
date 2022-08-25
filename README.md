@@ -12,9 +12,11 @@ Javascript modules based game engine with WebGL
 - [x] Multi-threaded physics using NVidia PhysX WASM port by ashconnell
 - [x] Entity Component System using bitECS
 - [x] MeshRenderer, MeshCollider, BoxCollider, SphereCollider, RigidBody, DirectionalLight components
-- [x] Shader support
+- [x] Shader and Framebuffer support
+- [x] 2D Textures and Cubemap support 
 - [x] Cascaded Shadow Maps
 - [x] Bloom Post Processing Effect
+- [x] Blur Post Processing Effect 
 
 ## TODO
 - [ ] Support for Physically Based Rendering
