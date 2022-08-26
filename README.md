@@ -51,7 +51,7 @@ const scene = new VENTEA.Scene();
 scene.camera = camera;
 
 const ground = scene.createEntity();
-ground.addComponent(VENTEA.Components.MeshRenderer, cube);
+ground.addComponent(VENTEA.Components.MeshRenderer, floor);
 ground.addComponent(VENTEA.Components.BoxCollider, { x: 100, y: 1, z: 100 });
 ground.addComponent(VENTEA.Components.RigidBody, { type: 'static' });
 
@@ -65,7 +65,7 @@ for (let y = 0; y < height; y++) {
         entity.position.y = 1 * y + 1;
         entity.position.z = 1 * (z - size / 2);
 
-        entity.addComponent(VENTEA.Components.MeshRenderer, cube1);
+        entity.addComponent(VENTEA.Components.MeshRenderer, cube);
         entity.addComponent(VENTEA.Components.BoxCollider, { x: 1, y: 1, z: 1 });
         entity.addComponent(VENTEA.Components.RigidBody, { type: 'dynamic' });
     }
