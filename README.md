@@ -18,6 +18,7 @@ Javascript modules based game engine with WebGL. [Demo](https://xirei.moe/mc/)
 - [x] Cascaded Shadow Maps
 - [x] Bloom Post Processing Effect
 - [x] Blur Post Processing Effect 
+- [x] Instanced Rendering Support
 
 ## TODO
 - [ ] Support for Physically Based Rendering
