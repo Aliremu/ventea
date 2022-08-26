@@ -2,6 +2,7 @@
 Javascript modules based game engine with WebGL. [Demo](https://xirei.moe/mc/)
 
 ![Example](https://xirei.moe/uploader/?f=s0jauiww.jpg)
+![Grass](https://xirei.moe/uploader/?f=4g6nooea.jpg)
 
 ## Features
 - [x] GLB / GLTF Mesh loading and rendering
