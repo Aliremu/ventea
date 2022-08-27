@@ -20,9 +20,11 @@ Javascript modules based game engine with WebGL. [Demo](https://xirei.moe/mc/)
 - [x] Bloom Post Processing Effect
 - [x] Blur Post Processing Effect 
 - [x] Instanced Rendering Support
+- [x] Skybox
 
 ## TODO
 - [ ] Support for Physically Based Rendering
+- [ ] Animation support
 - [ ] Volumetric Clouds
 - [ ] AI Pathfinding
 
