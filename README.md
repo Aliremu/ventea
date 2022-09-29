@@ -27,6 +27,7 @@ Javascript modules based game engine with WebGL. [Demo](https://xirei.moe/mc/)
 - [ ] Animation support
 - [ ] Volumetric Clouds
 - [ ] AI Pathfinding
+- [ ] Improve memory management
 
 ## Usage/Examples
 
@@ -86,33 +87,11 @@ const loop = (time) => {
 
     // VENTEA.Renderer.endDebug();
 
-    stateReset(gl);
+    VENTEA.Renderer.stateReset();
 
     requestAnimationFrame(loop);
 }
 
 requestAnimationFrame(loop);
-
-function stateReset(gl) {
-    var numTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS)
-    for (var ii = 0; ii < numTextureUnits; ++ii) {
-      gl.activeTexture(gl.TEXTURE0 + ii)
-      gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-      gl.bindTexture(gl.TEXTURE_2D, null)
-    }
-
-    gl.activeTexture(gl.TEXTURE0)
-    gl.useProgram(null)
-    gl.bindBuffer(gl.ARRAY_BUFFER, null)
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null)
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null)
-    gl.blendColor(0, 0, 0, 0)
-    gl.blendEquation(gl.FUNC_ADD)
-    gl.blendFunc(gl.ONE, gl.ZERO)
-    gl.clearColor(0, 0, 0, 0)
-
-    return gl
-}
 ```
 
