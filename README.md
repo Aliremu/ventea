@@ -2,6 +2,9 @@
 Javascript modules based game engine with WebGL. [Demo](https://xirei.moe/mc/)
 
 ![Example](https://xirei.moe/uploader/?f=odu8nj76.jpg)
+![Physics](https://xirei.moe/uploader/?f=bmnnq4dz.jpg)
+Thousands of rigid bodies at max fps thanks to wasm and webworkers.
+
 ![Grass](https://xirei.moe/uploader/?f=4g6nooea.jpg)
 ![Piano](https://xirei.moe/uploader/?f=u26g4ppf.jpg)
 
