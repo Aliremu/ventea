@@ -19183,7 +19183,7 @@ class Material {
                 entries.push({ binding: binding, resource: { buffer: buffer.buffer } });
             }
         }
-        console.log("THE CUM BUCKET", entries, this.descriptor, entries.length);
+        console.log("Material Descriptors", entries, this.descriptor, entries.length);
         this.bindGroup = _Render_WebGPU_WebGPUContext__WEBPACK_IMPORTED_MODULE_4__.WebGPUContext.device.createBindGroup({
             layout: this.pipeline.as().pipeline.getBindGroupLayout(2),
             entries: entries

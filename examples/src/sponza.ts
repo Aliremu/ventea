@@ -1,4 +1,4 @@
-import * as VENTEA from 'venteajs';
+import * as VENTEA from 'ventea';
 
 const canvas = document.createElement('canvas');
 canvas.width = window.innerWidth;

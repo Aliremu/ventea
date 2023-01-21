@@ -1,4 +1,4 @@
-import * as VENTEA from 'venteajs';
+import * as VENTEA from 'ventea';
 import GUI from 'lil-gui';
 
 const canvas = document.createElement('canvas');

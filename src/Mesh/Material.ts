@@ -84,7 +84,7 @@ export class Material {
             }
         }
 
-        console.log("THE CUM BUCKET", entries, this.descriptor, entries.length);
+        console.log("Material Descriptors", entries, this.descriptor, entries.length);
 
         this.bindGroup = WebGPUContext.device.createBindGroup({
             layout: this.pipeline!.as<WebGPUPipieline>().pipeline.getBindGroupLayout(2),

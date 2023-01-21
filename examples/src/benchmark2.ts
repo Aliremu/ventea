@@ -1,4 +1,4 @@
-import * as VENTEA from "venteajs";
+import * as VENTEA from 'ventea';
 
 const stringMap: Map<string, number> = new Map();
 const intMap: Map<number, number> = new Map();
