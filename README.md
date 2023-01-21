@@ -7,7 +7,7 @@
 
 ## Table of contents
 
-- [Project Name](#project-name)
+- [ventea](#ventea)
   - [Table of contents](#table-of-contents)
   - [Getting Started](#getting-started)
   - [Installation](#installation)
@@ -25,13 +25,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Installation
 
-**BEFORE YOU INSTALL:** please read the [prerequisites](#prerequisites)
-
 Start with cloning this repo on your local machine:
 
 ```sh
-$ git clone https://github.com/Aliremu/Ventea.git
-$ cd Ventea
+$ git clone https://github.com/Aliremu/ventea.git
+$ cd ventea
 ```
 
 To install and set up the library, run:

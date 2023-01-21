@@ -1,6 +1,6 @@
 {
   "name": "ventea",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "",
   "main": "dist/ventea.js",
   "types": "dist/src/index.d.ts",
