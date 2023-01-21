@@ -260,9 +260,9 @@ namespace Engine {
     }
 
     export const step = (m: any) => {
+        lastTime = startTime;
         startTime = performance.now();
         let dt = (startTime - lastTime) * 0.001;
-        lastTime = startTime;
         fps++;
 
         if (lastTime - fpsTime >= 1000) {

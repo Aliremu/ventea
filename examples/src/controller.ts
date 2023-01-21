@@ -172,19 +172,12 @@ canvas.onclick = () => {
     });
 
     const sun = scene.createEntity('Light');
-    sun
-    .addComponent(VENTEA.Light, { r: 2, g: 1.8, b: 1.4, type: VENTEA.LightType.Directional });
+    sun.addComponent(VENTEA.Light, { r: 2, g: 1.8, b: 1.4, type: VENTEA.LightType.Directional });
     sun.position.set(1, 1, 1);
 
     const sun2 = scene.createEntity('Light');
-    sun2
-    .addComponent(VENTEA.Light, { r: 2, g: 1.8, b: 1.4, type: VENTEA.LightType.Directional });
+    sun2.addComponent(VENTEA.Light, { r: 2, g: 1.8, b: 1.4, type: VENTEA.LightType.Directional });
     sun2.position.set(-1, 1, -1);
-
-    // const light2 = scene.createEntity('Light');
-    // light2
-    // .addComponent(VENTEA.MeshRenderer, new VENTEA.SphereMesh(0.1))
-    // .addComponent(VENTEA.Light, { r: 0.1, g: 0.1, b: 0.1, type: VENTEA.LightType.Point });
 
     const render = (time: number) => {
         //TODO: ugly
@@ -197,8 +190,6 @@ canvas.onclick = () => {
         controls.target = new VENTEA.Vector3(xp, yp + 0.5, zp);
         
         controls.update();
-
-        // light2.position.set(3 * Math.cos(time / 1000), 1, 3 * Math.sin(time / 1000));
 
         VENTEA.Physics.raycast(player.position, new VENTEA.Vector3(0, -1, 0), 1.1, (eids: number[]) => {
             onGround = false;
@@ -217,9 +208,6 @@ canvas.onclick = () => {
         if(VENTEA.Input.isKeyDown('Space') && onGround) {
             newY = 4;
         }
-
-        // const x = camera.target.x - player.position.x;
-        // const z = camera.target.z - player.position.z;
 
         const x = Math.cos(controls.yaw * VENTEA.Utils.DEG_TO_RAD);
         const z = Math.sin(controls.yaw * VENTEA.Utils.DEG_TO_RAD);

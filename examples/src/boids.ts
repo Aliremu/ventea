@@ -163,7 +163,7 @@ class Boid {
         inputBoids[i * 20 + 6] = dz; // direction.z
 
         entity.position.set(x, y, z);
-        // entity.scale.set(0.5, 0.5, 0.5);
+
         const boid = new Boid(entity, new VENTEA.Vector3(dx, dy, dz));
         boids.push(boid);
 
@@ -177,8 +177,6 @@ class Boid {
     computeShader.setBuffer("input", inputBuffer);
     computeShader.setBuffer("output", outputBuffer);
     computeShader.setBuffer("scene", sceneBuffer);
-
-    // const grid = scene.createEntity('Floor').addComponent(VENTEA.MeshRenderer, new VENTEA.GridMesh(width, height)).position.set(width / 2, height / 2, depth / 2);
 
     scene.createEntity()
     .addComponent(VENTEA.MeshRenderer, new VENTEA.BoxMesh(Boid.bounds.x, 1, Boid.bounds.z)).position.set(Boid.bounds.x / 2, -0.5, Boid.bounds.z / 2);

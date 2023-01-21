@@ -26,7 +26,6 @@ canvas.onclick = () => {
 
     const lol = 1;
 
-    const resume = await VENTEA.Resources.load(VENTEA.Texture2D, 'resume.png');
     const skybox = await VENTEA.Resources.load(VENTEA.Texture2D, 'FS003_Day_Sunless.png');
 
     const boxMesh = new VENTEA.BoxMesh(lol, lol, lol);

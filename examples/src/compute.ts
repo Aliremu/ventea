@@ -18,15 +18,8 @@ canvas.onclick = () => {
     });
 
     const camera = new VENTEA.PerspectiveCamera(90, canvas.width / canvas.height, 0.01, 1000.0);
-    // const camera = new VENTEA.OrthographicCamera(-canvas.width/2, canvas.width/2, -canvas.height/2, canvas.height/2, -100, 100);
-    // camera.eye.set(canvas.width / 2, canvas.height / 2, 2);
-    // camera.target.set(canvas.width / 2, canvas.height / 2, 0);
-    // camera.zoom = 1;
-    // camera.updateProjection();
-    // camera.updateView();
 
     const controls = new VENTEA.FirstPersonControls(camera);
-    // const controls = new VENTEA.OrbitControls(camera);
     controls.update();
 
     const src = await (await fetch('compute.wgsl')).text();
@@ -84,16 +77,8 @@ canvas.onclick = () => {
     computeShader.setBuffer("output", outputBuffer);
     computeShader.setBuffer("scene", sceneBuffer);
 
-    // const floorMesh = new VENTEA.BoxMesh(width, 0, height);
-    // const data = floorMesh.positionBuffer.data;
-    // for(let i = 0; i < data.length / 3; i++) {
-    //     data[i * 3 + 1] = -10;
-    // }
-    // floorMesh.positionBuffer.setData(data);
     const grid = scene.createEntity('Floor').addComponent(VENTEA.MeshRenderer, new VENTEA.GridMesh(width, height)).position.set(width/2, 0, height/2);
-    // const floor = scene.createEntity('Floor').addComponent(VENTEA.MeshRenderer, floorMesh).position.set(width/2, 0, height/2);
-    // const grid = scene.createEntity('Grid').addComponent(VENTEA.MeshRenderer, await VENTEA.Resources.load(VENTEA.GLTFMesh, 'Finale Version 16.glb')).position.set(width/2, height/2, 0);
-
+    
     window.addEventListener('resize', (e) => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;

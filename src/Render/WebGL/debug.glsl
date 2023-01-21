@@ -37,5 +37,6 @@ uniform mat4 proj;
 uniform mat4 model;
 
 void main() {
-    color = vec4(0.0, 1.0, 0.0, 1.0);
+    // color = vec4(0.0, 1.0, 0.0, 1.0);
+    color = vec4(0.7, 0.7, 0.7, 1.0);
 }

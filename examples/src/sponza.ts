@@ -30,7 +30,6 @@ canvas.onclick = () => {
     skyboxMesh.subMeshes[0].material?.set('albedoTexture', skyboxTexture);
     skyboxMesh.subMeshes[0].material?.build();
     skybox.addComponent(VENTEA.MeshRenderer, skyboxMesh);
-    skybox.position
     skybox.position.set(0, 20, 0);
     skybox.rotation.set(0, 0, Math.PI);
 
