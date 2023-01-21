@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+
+<head>
+   <!-- Primary Meta Tags -->
+   <title>Xirei | Ventea Engine Demo</title>
+   <meta name="title" content="Xirei | Ventea Engine Demo">
+   <meta name="description" content="Xirei | Ventea Engine Demo">
+   <link rel="stylesheet" type="text/css" href="./buttons.css">
+
+   <!-- Open Graph / Facebook -->
+   <meta property="og:type" content="website">
+   <meta property="og:url" content="https://metatags.io/">
+   <meta property="og:title" content="Xirei | Ventea Engine Demo">
+   <meta property="og:description" content="Xirei | Ventea Engine Demo">
+
+   <!-- Twitter -->
+   <meta property="twitter:card" content="summary_large_image">
+   <meta property="twitter:url" content="https://metatags.io/">
+   <meta property="twitter:title" content="Xirei | Ventea Engine Demo">
+   <meta property="twitter:description" content="Xirei | Ventea Engine Demo">
+   <style>
+      html {
+         overflow: hidden;
+         background: #eee7e1;
+      }
+
+      body {
+         margin: 0;
+      }
+
+      canvas {
+         position: absolute;
+      }
+
+      #game-wrapper {
+         display: none;
+      }
+
+      #coordinates {
+         position: absolute;
+         color: white;
+         z-index: 2;
+      }
+
+      #menu {
+         position: absolute;
+         left: 50%;
+         top: 50%;
+         transform: translate(-50%, -50%);
+      }
+
+      #surface {
+         position: absolute;
+         top: 0;
+         right: 0;
+         width: 100%;
+         height: 100%;
+         z-index: 1;
+      }
+
+      #loading {
+         display: none;
+      }
+
+      #loading:after {
+         overflow: hidden;
+         display: inline-block;
+         vertical-align: bottom;
+         -webkit-animation: ellipsis steps(4, end) 1200ms infinite;
+         animation: ellipsis steps(4, end) 1200ms infinite;
+         content: "\2026";
+         /* ascii code for the ellipsis character */
+         width: 0px;
+      }
+
+      @keyframes ellipsis {
+         to {
+            width: 20px;
+         }
+      }
+
+      @-webkit-keyframes ellipsis {
+         to {
+            width: 20px;
+         }
+      }
+   </style>
+   <script type="text/javascript" src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script>
+</head>
+
+<body>
+   <div id="game-wrapper">
+      <canvas width="0" height="0" id="surface"></canvas>
+      <canvas width="0" height="0" id="imgui"></canvas>
+      <!-- <div id="coordinates">0</div> -->
+   </div>
+   <div id="menu">
+      <div id="start">
+         <button id="button" class="button button--fenrir">
+            <svg aria-hidden="true" class="progress" width="70" height="70" viewBox="0 0 70 70">
+               <path class="progress__circle"
+                  d="m35,2.5c17.955803,0 32.5,14.544199 32.5,32.5c0,17.955803 -14.544197,32.5 -32.5,32.5c-17.955803,0 -32.5,-14.544197 -32.5,-32.5c0,-17.955801 14.544197,-32.5 32.5,-32.5z">
+               </path>
+               <path class="progress__path"
+                  d="m35,2.5c17.955803,0 32.5,14.544199 32.5,32.5c0,17.955803 -14.544197,32.5 -32.5,32.5c-17.955803,0 -32.5,-14.544197 -32.5,-32.5c0,-17.955801 14.544197,-32.5 32.5,-32.5z"
+                  pathLength="1"></path>
+            </svg>
+            <span>Start</span>
+         </button>
+      </div>
+
+      <div id="loading">Loading</div>
+   </div>
+   <script src="./src/index.js" type="module"></script>
+</body>
+
+</html>
