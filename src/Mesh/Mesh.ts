@@ -51,7 +51,7 @@ export class Mesh extends Resource<Mesh> {
             ],
             backfaceCull: true,
             depthTest: true,
-            shader: new PBRShaderMaterial(),
+            shader: new PhongShaderMaterial(),
             wireframe: false
         };
 
