@@ -3,7 +3,7 @@
 
 # ventea
 
-> An ECS based game engine built with TypeScript with WebGL and WebGPU support and NVidia PhysX.  
+> An ECS based game engine built in TypeScript with WebGL and WebGPU support and NVidia PhysX integration.  
 
 ## Table of contents
 
