@@ -1,14 +1,7 @@
-import { Material } from "./Material";
-import { Mesh } from "./Mesh";
-import { UniformBuffer } from "../Render/UniformBuffer";
-import { WebGPUContext } from "../Render/WebGPU/WebGPUContext";
-import { WebGPUTexture2D } from "../Render/WebGPU/WebGPUTexture2D";
-import { WebGPUUniformBuffer } from "../Render/WebGPU/WebGPUUniformBuffer";
-import { WebGPUPipieline } from "../Render/WebGPU/WebGPUPipeline";
-import { Texture2D } from "../Render/Texture2D";
 import { Vector3 } from "../Math/Vector";
+import { MeshData } from "./MeshData";
 
-export class BoxMesh extends Mesh {
+export class BoxMesh extends MeshData {
     constructor(x: number | Vector3 = 1, y: number = 1, z: number = 1) {
         let halfX = 1 / 2;
         let halfY = 1 / 2;
@@ -136,27 +129,5 @@ export class BoxMesh extends Mesh {
         ]);
 
         super(positions, normals, texCoords, indices);
-
-        const buffer = new UniformBuffer(28);
-        buffer.data.fill(0);
-        buffer.data[0] = 1;
-        buffer.data[1] = 1;
-        buffer.data[2] = 1;
-        buffer.data[3] = 1;
-
-        buffer.setData(0, buffer.data, 0, 7);
-
-        const material = new Material();
-        material.pipeline = this.pipeline;
-
-        material.set('pbr_material', buffer);
-        material.set('albedoTexture', Texture2D.DEFAULT_TEXTURE);
-        material.set('normalTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('ao_m_rTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('occlusionTexture', Texture2D.NORMAL_TEXTURE);
-
-        material.build();
-        
-        this.subMeshes.push({ baseIndex: 0, baseVertex: 0, indexCount: indices.length, material: material });
     }
 }

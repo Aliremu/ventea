@@ -18,20 +18,15 @@ canvas.onclick = () => {
     });
 
     const camera = new VENTEA.PerspectiveCamera(90, canvas.width / canvas.height, 0.01, 1000.0);
-    const skyboxTexture = await VENTEA.Resources.load(VENTEA.Texture2D, 'FS003_Day_Sunless.png');
+    const skyboxTexture = await VENTEA.Resources.loadTexture('FS003_Day_Sunless.png', {
+        mip: false
+    });
 
     const controls = new VENTEA.FirstPersonControls(camera);
     controls.update();
 
     const scene = new VENTEA.Scene();
-
-    const skybox = scene.createEntity('Skybox');
-    const skyboxMesh = new VENTEA.SphereMesh(500);
-    skyboxMesh.subMeshes[0].material?.set('albedoTexture', skyboxTexture);
-    skyboxMesh.subMeshes[0].material?.build();
-    skybox.addComponent(VENTEA.MeshRenderer, skyboxMesh);
-    skybox.position.set(0, 20, 0);
-    skybox.rotation.set(0, 0, Math.PI);
+    scene.background = skyboxTexture;
 
     const player = scene.createEntity('Player');
     player.position.set(0, 10, 0);
@@ -45,27 +40,27 @@ canvas.onclick = () => {
     const lol = 0.5;
 
     const count = 3;
-    const boxMesh = new VENTEA.BoxMesh(lol, lol, lol);
-    const sphereMesh = new VENTEA.SphereMesh(lol / 2);
-
-    const texture = new VENTEA.Texture2D(4, 2);
+    const texture = new VENTEA.Texture2D(4, 2, VENTEA.TextureFormat.BGRA8UNORM, {
+        magFilter: VENTEA.SamplerFilter.Nearest
+    });
     texture.setData(new Uint8Array([
         255, 102, 159, 255, 255, 159, 102, 255, 236, 255, 102, 255, 121, 255, 102, 255, 102, 255,
         198, 255, 102, 198, 255, 255, 121, 102, 255, 255, 236, 102, 255, 255
     ]));
 
-    const boxMaterial = boxMesh.subMeshes[0].material!;
-    boxMaterial.set('albedoTexture', texture);
-    boxMaterial.build();
+    const material = new VENTEA.PBRShaderMaterial({
+        albedoTexture: texture,
+        metalnessFactor: 0,
+        roughnessFactor: 1
+    });
 
-    const sphereMaterial = sphereMesh.subMeshes[0].material!;
-    sphereMaterial.set('albedoTexture', texture);
-    sphereMaterial.build();
+    const boxMesh = new VENTEA.Mesh(new VENTEA.BoxMesh(lol, lol, lol), material);
+    const sphereMesh = new VENTEA.Mesh(new VENTEA.SphereMesh(lol / 2), material);
 
     const random = (min: number, max: number) => Math.random() * (max - min) + min;
 
     const width = 20;
-    const halfWidth = width/2;
+    const halfWidth = width/2 - 1;
 
     for(let y = 0; y < 4; y++) {
         for (let i = 0; i < count * count; i++) {
@@ -84,18 +79,15 @@ canvas.onclick = () => {
         }
     }
 
-    const floorMesh = new VENTEA.BoxMesh(width, 1, width);
-    const floorMat = floorMesh.subMeshes[0].material!;
-    floorMat.set('albedoTexture', texture);
-    floorMat.build();
+    const floorMesh = new VENTEA.Mesh(new VENTEA.BoxMesh(width, 1, width), material);
 
     const floor = scene.createEntity('Floor');
     floor.addComponent(VENTEA.MeshRenderer, floorMesh)
     .addComponent(VENTEA.BoxCollider, { x: width, y: 1, z: width })
     .addComponent(VENTEA.RigidBody, { type: VENTEA.BodyType.Static });
 
-    const wallMesh = new VENTEA.BoxMesh(width, width, 1);
-    const wall2Mesh = new VENTEA.BoxMesh(1, width, width);
+    const wallMesh = new VENTEA.Mesh(new VENTEA.BoxMesh(width, width, 1));
+    const wall2Mesh = new VENTEA.Mesh(new VENTEA.BoxMesh(1, width, width));
     const wall1 = scene.createEntity();
     wall1.position.set(0, 0, halfWidth);
     wall1
@@ -124,10 +116,11 @@ canvas.onclick = () => {
     .addComponent(VENTEA.MeshCollider, wall2Mesh)
     .addComponent(VENTEA.RigidBody, { type: VENTEA.BodyType.Static });
     
-    const mapMesh = await VENTEA.Resources.load(VENTEA.GLTFMesh, 'map.glb');
+    const mapMesh = await VENTEA.Resources.loadGLTF('map.glb');
     const map = scene.createEntity('Map');
     map.position.set(-5, 0.5, 0);
-    map.scale.set(0.75, 0.75, 0.75);
+    // map.scale.set(0.75, 0.75, 0.75);
+    // map.scale.set(10, 10, 10);
     map.addComponent(VENTEA.MeshRenderer, mapMesh)
     .addComponent(VENTEA.MeshCollider, mapMesh)
     .addComponent(VENTEA.RigidBody, { type: VENTEA.BodyType.Static })
@@ -158,7 +151,7 @@ canvas.onclick = () => {
         }
 
         const position = new VENTEA.Vector3(player.position.x, player.position.y + 0.5, player.position.z);
-
+        console.log(controls.lookDir.x, controls.lookDir.y, controls.lookDir.z, camera.yaw);
         VENTEA.Physics.raycast(position, controls.lookDir, 100, (eid: number[]) => {
             for(const e of eid) {
                 console.log(scene.pool[e]);
@@ -209,8 +202,8 @@ canvas.onclick = () => {
             newY = 4;
         }
 
-        const x = Math.cos(controls.yaw * VENTEA.Utils.DEG_TO_RAD);
-        const z = Math.sin(controls.yaw * VENTEA.Utils.DEG_TO_RAD);
+        const x = Math.sin(camera.yaw);
+        const z = -Math.cos(camera.yaw);
 
         const vel = new VENTEA.Vector2();
 

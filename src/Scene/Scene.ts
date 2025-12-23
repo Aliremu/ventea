@@ -3,16 +3,19 @@ import { LastPosition, MeshRenderer, Position, RigidBody, Rotation, Scale, Tag }
 import { Entity } from "./Entity";
 import { Physics } from "../Physics/Physics";
 import { UUID } from "../Core/UUID";
+import { Texture2D } from "../Render/Texture2D";
 
 export class Scene {
     public world: IWorld;
     public pool: Array<Entity>;
     public renderableList: Array<number>;
+    public background: Texture2D;
 
     constructor() {
         this.world = createWorld();
         this.pool = new Array();
-
+        this.background = new Texture2D(1, 1); //Texture2D.DEFAULT_TEXTURE;
+        this.background.setData(new Uint8Array([170, 200, 255, 255]));
         //TODO: Memoize query
         this.renderableList = new Array();
 

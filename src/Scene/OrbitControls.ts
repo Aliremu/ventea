@@ -1,11 +1,11 @@
 import { glMatrix, vec3 } from "gl-matrix";
-import { Camera } from "../Camera/Camera";
+import { ICamera } from "../Camera/ICamera";
 import { OrthographicCamera } from "../Camera/OrthographicCamera";
 import { PerspectiveCamera } from "../Camera/PerspectiveCamera";
 import { Vector3 } from "../Math/Vector";
 
 export class OrbitControls {
-    public camera: Camera;
+    public camera: ICamera;
 
     public mouseDown: boolean;
     public distance: number;
@@ -15,7 +15,7 @@ export class OrbitControls {
 
     public target: Vector3;
 
-    constructor(camera: Camera) {
+    constructor(camera: ICamera) {
         this.camera = camera;
         this.mouseDown = false;
         this.yaw = 0;
@@ -51,7 +51,7 @@ export class OrbitControls {
         });
 
         if(camera instanceof PerspectiveCamera || camera instanceof OrthographicCamera) {
-            const normal = camera.eye;
+            const normal = camera.position;
             this.yaw = Math.atan2(normal.x, normal.z) * 180 / Math.PI;
             this.pitch = Math.asin(normal.y) * 180 / Math.PI;
 
@@ -59,7 +59,7 @@ export class OrbitControls {
 
             camera.target.set(0, 0, 0);
 
-            this.distance = camera.eye.length();;
+            this.distance = camera.position.length();;
         }
 
         this.update();
@@ -70,20 +70,20 @@ export class OrbitControls {
         const pitchRadians = glMatrix.toRadian(this.pitch - 90);
 
         if(this.camera instanceof PerspectiveCamera) {
-            this.camera.eye.x = this.distance * Math.sin(pitchRadians) * Math.cos(yawRadians) + this.target.x;
-            this.camera.eye.y = this.distance * Math.cos(pitchRadians) + this.target.y;
-            this.camera.eye.z = this.distance * Math.sin(pitchRadians) * Math.sin(yawRadians) + this.target.z;
+            this.camera.position.x = this.distance * Math.sin(pitchRadians) * Math.cos(yawRadians) + this.target.x;
+            this.camera.position.y = this.distance * Math.cos(pitchRadians) + this.target.y;
+            this.camera.position.z = this.distance * Math.sin(pitchRadians) * Math.sin(yawRadians) + this.target.z;
 
-            this.camera.target.x = -this.camera.eye.x + this.target.x;
-            this.camera.target.y = -this.camera.eye.y + this.target.y;
-            this.camera.target.z = -this.camera.eye.z + this.target.z;
+            this.camera.target.x = -this.camera.position.x + this.target.x;
+            this.camera.target.y = -this.camera.position.y + this.target.y;
+            this.camera.target.z = -this.camera.position.z + this.target.z;
             this.camera.updateView();
         }
 
         if(this.camera instanceof OrthographicCamera) {
-            this.camera.eye.x = this.distance * Math.sin(pitchRadians) * Math.cos(yawRadians);
-            this.camera.eye.y = this.distance * Math.cos(pitchRadians);
-            this.camera.eye.z = this.distance * Math.sin(pitchRadians) * Math.sin(yawRadians);
+            this.camera.position.x = this.distance * Math.sin(pitchRadians) * Math.cos(yawRadians);
+            this.camera.position.y = this.distance * Math.cos(pitchRadians);
+            this.camera.position.z = this.distance * Math.sin(pitchRadians) * Math.sin(yawRadians);
             this.camera.updateView();
             this.camera.updateProjection();
         }

@@ -1,12 +1,13 @@
 import { glMatrix } from "gl-matrix";
-import { Camera } from "../Camera/Camera";
+import { ICamera } from "../Camera/ICamera";
 import { OrthographicCamera } from "../Camera/OrthographicCamera";
 import { PerspectiveCamera } from "../Camera/PerspectiveCamera";
+import { Utils } from "../Math/Utils";
 import { Vector3 } from "../Math/Vector";
 import { Vector3Proxy } from "./Components";
 
 export class FirstPersonControls {
-    public camera: Camera;
+    public camera: ICamera;
 
     public keys: Map<string, boolean>;
 
@@ -17,7 +18,7 @@ export class FirstPersonControls {
 
     public target?: Vector3 | Vector3Proxy;
 
-    constructor(camera: Camera) {
+    constructor(camera: ICamera) {
         this.camera = camera;
         this.keys = new Map<string, boolean>();
         this.yaw = 0;
@@ -38,20 +39,24 @@ export class FirstPersonControls {
             const velX = e.movementX / 10;
             const velY = e.movementY / 10;
 
-            this.pitch -= velY;
-            this.yaw += velX;
-
-            if (Math.abs(this.pitch) >= 89) {
-                this.pitch = 89 * this.pitch / Math.abs(this.pitch);
-            }
-
-            let r = Math.cos(glMatrix.toRadian(this.pitch));
-
-            let x = r * Math.cos(glMatrix.toRadian(this.yaw));
-            let y = Math.sin(glMatrix.toRadian(this.pitch));
-            let z = r * Math.sin(glMatrix.toRadian(this.yaw));
-
             if (camera instanceof PerspectiveCamera) {
+                camera.pitch -= velY * Utils.DEG_TO_RAD;
+                camera.yaw += velX * Utils.DEG_TO_RAD;
+
+                // if (Math.abs(this.pitch) >= 90) {
+                //     this.pitch = 90 * this.pitch / Math.abs(this.pitch);
+                // }
+    
+                let r = Math.cos(camera.pitch);
+    
+                // let x = r * Math.sin(camera.yaw);
+                // let y = Math.sin(camera.pitch);
+                // let z = -r * Math.cos(camera.yaw);
+
+                let x = Math.sin(camera.yaw);
+                let y = Math.sin(camera.pitch);
+                let z = -Math.cos(camera.yaw);
+
                 this.lookDir.x = x;
                 this.lookDir.y = y;
                 this.lookDir.z = z;
@@ -62,13 +67,13 @@ export class FirstPersonControls {
     update() {
         if (this.camera instanceof PerspectiveCamera || this.camera instanceof OrthographicCamera) {
             if(this.target) {
-                this.camera.eye.x = this.target.x;
-                this.camera.eye.y = this.target.y;
-                this.camera.eye.z = this.target.z;
+                this.camera.position.x = this.target.x;
+                this.camera.position.y = this.target.y;
+                this.camera.position.z = this.target.z;
 
-                this.camera.target.x = this.target.x + this.lookDir.x;
-                this.camera.target.y = this.target.y + this.lookDir.y;
-                this.camera.target.z = this.target.z + this.lookDir.z;
+                // this.camera.target.x = this.target.x + this.lookDir.x;
+                // this.camera.target.y = this.target.y + this.lookDir.y;
+                // this.camera.target.z = this.target.z + this.lookDir.z;
 
                 this.camera.updateView();
                 return;
@@ -119,13 +124,13 @@ export class FirstPersonControls {
                 velZ /= magnitude;
             }
 
-            this.camera.eye.x += mult * velX;
-            this.camera.eye.y += velY;
-            this.camera.eye.z += mult * velZ;
+            this.camera.position.x += mult * velX;
+            this.camera.position.y += velY;
+            this.camera.position.z += mult * velZ;
 
-            this.camera.target.x = this.camera.eye.x + this.lookDir.x;
-            this.camera.target.y = this.camera.eye.y + this.lookDir.y;
-            this.camera.target.z = this.camera.eye.z + this.lookDir.z;
+            this.camera.target.x = this.camera.position.x + this.lookDir.x;
+            this.camera.target.y = this.camera.position.y + this.lookDir.y;
+            this.camera.target.z = this.camera.position.z + this.lookDir.z;
 
             this.camera.updateView();
         }

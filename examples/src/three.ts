@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import Stats from 'stats.js';
-import { Vector3 } from 'three';
+import { MeshBasicMaterial, Vector3 } from 'three';
 
 // const canvas = document.createElement('canvas');
 // canvas.width = window.innerWidth;
@@ -16,8 +16,10 @@ import { Vector3 } from 'three';
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(-5, 10, -5);
-    camera.lookAt(new Vector3(50, 0, 50));
+    const size = 150;
+    
+    camera.position.set(size/2, 100, size/2);
+    camera.lookAt(new Vector3(size/2, 0, size/2));
 
     scene.background = new THREE.Color(0x666666);
 
@@ -31,24 +33,14 @@ import { Vector3 } from 'three';
     camera.add(pointLight);
     scene.add(camera);
 
-    const floor = new THREE.Mesh(
-        new THREE.BoxGeometry(10, 5, 10),
-        new THREE.ShadowMaterial({ color: 0x111111 })
-    );
-    floor.position.y = - 2.5;
-    floor.receiveShadow = true;
-
-    scene.add(floor);
-
-    const material = new THREE.MeshPhongMaterial();
-
+    // const material = new THREE.MeshPhysicalMaterial();
+    // material.color = new THREE.Color(100);
     const geometryBox = new THREE.BoxGeometry(1, 1, 1);
-
-    const size = 150;
     const lol = 1;
 
     for (let i = 0; i < size * size; i++) {
-        const box = new THREE.Mesh(geometryBox, material);
+        const box = new THREE.Mesh(geometryBox);
+        box.receiveShadow = true;
         box.position.set(~~(i / size) * lol, 0, (i % size) * lol);
         scene.add(box);
     }
@@ -73,19 +65,47 @@ import { Vector3 } from 'three';
     stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
     document.body.appendChild(stats.dom);
 
-    const animate = () => {
+    const mat = scene.children[3] as THREE.Mesh;
+
+    let lastTime = 0;
+    let times: number[] = [];
+
+    const avg = (arr: number[]) => {
+        return arr.reduce((l, r) => l + r) / arr.length;
+    }
+
+    const animate = (time: number) => {
+        // if(lastTime == 0) {
+        //     lastTime = time;
+        // } else {
+        //     const diff = time - lastTime;
+        //     times.push(diff);
+        //     lastTime = time;
+        // }
 
         requestAnimationFrame(animate);
+
+        // (mat.material as MeshBasicMaterial).color.multiplyScalar(0.99);
 
         scene.children.forEach(e => {
             if(e == camera) return;
 
+            // if(e instanceof THREE.Mesh) {
+            //     (e.material as MeshBasicMaterial).color.multiplyScalar(0.99);
+            // }
             e.rotation.y += 0.05;
         });
+
+
+        // material.color.multiplyScalar(0.99);
 
         stats.begin()
         renderer.render(scene, camera);
         stats.end();
+
+        // if(times.length > 100) {
+        //     console.log(avg(times));
+        // }
     }
 
     requestAnimationFrame(animate);

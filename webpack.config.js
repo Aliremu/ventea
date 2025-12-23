@@ -6,6 +6,10 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.(png|jpe?g|gif)$/i,
+                type: 'asset/inline'
+            },
+            {
                 test: /\.worker\.ts$/,
                 loader: 'worker-loader',
                 options: {

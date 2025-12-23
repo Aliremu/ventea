@@ -1,3 +1,4 @@
+import { Sampler, SamplerFilter } from "../Sampler";
 import { ITexture2D } from "../Texture2D";
 import { TextureFormat } from "../TextureFormat";
 import { WebGPUContext } from "./WebGPUContext";
@@ -7,18 +8,18 @@ const FORMAT_MAP: Map<TextureFormat, GPUTextureFormat> = new Map<TextureFormat, 
     [TextureFormat.BGRA8SRGB, 'bgra8unorm-srgb']
 ]);
 
+const FILTER_MAP: Map<SamplerFilter, GPUFilterMode> = new Map<SamplerFilter, GPUFilterMode>([
+    [SamplerFilter.Nearest, 'nearest'],
+    [SamplerFilter.Linear, 'linear']
+]);
+
 export class WebGPUTexture2D implements ITexture2D {
     public texture: GPUTexture;
     public textureView: GPUTextureView;
 
-    public width: number;
-    public height: number;
-    public format: TextureFormat;
-    public mip: boolean;
-
     public sampler: GPUSampler;
 
-    constructor(width: number, height: number, format: TextureFormat, mip: boolean) {
+    constructor(public width: number, public height: number, public format: TextureFormat, public options: Sampler) {
         const textureDesc: GPUTextureDescriptor = {
             size: [width, height],
             dimension: '2d',
@@ -26,21 +27,16 @@ export class WebGPUTexture2D implements ITexture2D {
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
         };
 
-        this.width = width;
-        this.height = height;
-        this.format = format;
-        this.mip = mip;
-
-        if(mip) {
-            textureDesc.mipLevelCount = Math.floor(Math.log2(Math.max(this.width, this.height))) + 1;
+        if(options.mip) {
+            textureDesc.mipLevelCount = Math.floor(Math.log2(Math.max(width, height))) + 1;
         }
 
         this.texture = WebGPUContext.device.createTexture(textureDesc);
         this.textureView = this.texture.createView();
 
         this.sampler = WebGPUContext.device.createSampler({
-            magFilter: 'nearest',
-            minFilter: 'linear',
+            magFilter: FILTER_MAP.get(options.magFilter),
+            minFilter: FILTER_MAP.get(options.minFilter),
             addressModeU: 'repeat',
             addressModeV: 'repeat',
             mipmapFilter: 'linear'
@@ -55,6 +51,9 @@ export class WebGPUTexture2D implements ITexture2D {
             rowsPerImage: height
         }, [width, height]);
     }
+    resize(width: number, height: number): void {
+        throw new Error("Method not implemented.");
+    }
 
     setData(data: Uint8Array | ImageBitmap | HTMLVideoElement): void {
         if(data instanceof Uint8Array) {
@@ -67,7 +66,8 @@ export class WebGPUTexture2D implements ITexture2D {
         } else {
             WebGPUContext.queue.copyExternalImageToTexture({ source: data }, { texture: this.texture }, [this.width, this.height]);
         }
-        if(this.mip) {
+
+        if(this.options.mip) {
             const textureDesc: GPUTextureDescriptor = {
                 size: [this.width, this.height],
                 dimension: '2d',

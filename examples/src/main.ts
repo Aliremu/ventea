@@ -19,8 +19,8 @@ canvas.onclick = () => {
 
     const camera = new VENTEA.PerspectiveCamera(90, canvas.width / canvas.height, 0.01, 1000.0);
 
-    const skyboxTexture = await VENTEA.Resources.load(VENTEA.Texture2D, 'FS003_Day_Sunless.png');
-    const terrainMesh = await VENTEA.Resources.load(VENTEA.GLTFMesh, 'Mesher.glb');
+    const skyboxTexture = await VENTEA.Resources.loadTexture('FS003_Day_Sunless.png');
+    const terrainMesh = await VENTEA.Resources.loadGLTF('Mesher.glb');
 
     const controls = new VENTEA.FirstPersonControls(camera);
     controls.update();

@@ -1,26 +1,18 @@
 import { IShader } from "../Shader";
-import src from "./default.glsl";
 import { WebGLContext } from "./WebGLContext";
 import { WebGLUniformBuffer } from "./WebGLUniformBuffer";
 
 export class WebGLShader implements IShader {
-    public vertex: Map<string, any>;
+    public vertexAttributes: Map<string, any>;
     public uniforms: Map<string, any>;
     public buffers: Map<string, WebGLUniformBuffer>;
     public program: WebGLProgram;
 
     constructor(public vertSrc: string, public fragSrc: string) {
-        const regex = /\/\/Vertex(.*)\/\/Fragment(.*)/mgs.exec(src);
-
-        if(!regex) throw Error("Shader is not valid!");
-
-        this.vertex = new Map();
+        this.vertexAttributes = new Map();
         this.buffers = new Map();
-        
-        const gl = WebGLContext.gl;
 
-        // vertSrc = regex.at(1)!;
-        // fragSrc = regex.at(2)!;
+        const gl = WebGLContext.gl;
 
         const vertShader = this.compileShader(vertSrc, gl.VERTEX_SHADER);
         const fragShader = this.compileShader(fragSrc, gl.FRAGMENT_SHADER);
@@ -50,13 +42,13 @@ export class WebGLShader implements IShader {
         const indices = [...Array(numUniforms).keys()];
         const blockIndices = gl.getActiveUniforms(program, indices, gl.UNIFORM_BLOCK_INDEX);
         const offsets = gl.getActiveUniforms(program, indices, gl.UNIFORM_OFFSET);
-        
+
         this.uniforms = new Map();
 
-        for(let i = 0; i < numUniforms; i++) {
+        for (let i = 0; i < numUniforms; i++) {
             const uniformInfo = gl.getActiveUniform(program, i);
 
-            if(!uniformInfo) {
+            if (!uniformInfo) {
                 continue;
             }
 
@@ -64,12 +56,12 @@ export class WebGLShader implements IShader {
                 continue;
             }
 
-            let {name, type, size} = uniformInfo;
+            let { name, type, size } = uniformInfo;
 
-            if(size == 1) {
+            if (size == 1) {
                 let location = gl.getUniformLocation(program, name);
 
-                if(location == null) {
+                if (location == null) {
                     const blockIndex = blockIndices[i];
                     const offset = offsets[i];
 
@@ -83,7 +75,7 @@ export class WebGLShader implements IShader {
                     console.log(name, type, location);
                 }
             } else {
-                for(let j = 0; j < size; j++) {
+                for (let j = 0; j < size; j++) {
                     name = name.slice(0, -3) + `[${j}]`;
                     const location = gl.getUniformLocation(program, name);
 
@@ -98,20 +90,47 @@ export class WebGLShader implements IShader {
         gl.deleteShader(vertShader);
         gl.deleteShader(fragShader);
     }
+    
+    setInt(name: string, val: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setFloat(name: string, val: number): void {
+        const gl = WebGLContext.gl;
+
+        gl.useProgram(this.program);
+        const info = this.uniforms.get(name);
+        gl.uniform1f(info.location, val);
+    }
+    
+    setVec2(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setVec3(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setVec4(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setMat3(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setMat4(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
 
     setUniforms(uniforms: any = {}) {
         const gl = WebGLContext.gl;
-        
-        for(const key in uniforms) {
+
+        for (const key in uniforms) {
             const info = this.uniforms.get(key);
             const v = uniforms[key];
 
-            if(typeof info === 'undefined') {
+            if (typeof info === 'undefined') {
                 //Logger.error('Unknown Uniform Name: ' + key);
                 continue;
             }
 
-            switch(info.type) {
+            switch (info.type) {
                 case gl.INT:
                     gl.uniform1i(info.location, v);
                     break;
@@ -134,8 +153,45 @@ export class WebGLShader implements IShader {
                     gl.uniformMatrix4fv(info.location, false, v);
                     break;
                 default:
-                    //Logger.error('Unknown Uniform Type!');
+                //Logger.error('Unknown Uniform Type!');
             }
+        }
+    }
+
+    setUniform<T>(name: string, val: number | number[] | Float32Array) {
+        const gl = WebGLContext.gl;
+
+        const info = this.uniforms.get(name);
+
+        if (typeof info === 'undefined') {
+            //Logger.error('Unknown Uniform Name: ' + key);
+            return;
+        }
+
+        switch (info.type) {
+            case gl.INT:
+                gl.uniform1i(info.location, val as number);
+                break;
+            case gl.SAMPLER_2D:
+                gl.uniform1i(info.location, val as number);
+                break;
+            case gl.FLOAT:
+                gl.uniform1f(info.location, val as number);
+                break;
+            case gl.FLOAT_VEC2:
+                gl.uniform2fv(info.location, val as number[]);
+                break;
+            case gl.FLOAT_VEC3:
+                gl.uniform3fv(info.location, val as number[]);
+                break;
+            case gl.FLOAT_VEC4:
+                gl.uniform4fv(info.location, val as number[]);
+                break;
+            case gl.FLOAT_MAT4:
+                gl.uniformMatrix4fv(info.location, false, val as Float32Array);
+                break;
+            default:
+            //Logger.error('Unknown Uniform Type!');
         }
     }
 

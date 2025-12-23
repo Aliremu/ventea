@@ -27,4 +27,5 @@ export declare class Pipeline {
     _impl: IPipeline;
     constructor(layout: PipelineLayout);
     as<T>(): T;
+    get layout(): PipelineLayout;
 }

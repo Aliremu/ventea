@@ -1,4 +1,4 @@
-import { Mesh } from "./Mesh";
-export declare class GridMesh extends Mesh {
+import { MeshData } from "./MeshData";
+export declare class GridMesh extends MeshData {
     constructor(width: number, height: number);
 }

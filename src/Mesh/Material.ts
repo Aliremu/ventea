@@ -1,53 +1,38 @@
-import { Pipeline } from "../Render/Pipeline";
 import { API, Renderer } from "../Render/Renderer";
+import { Shader } from "../Render/Shader";
 import { Texture2D } from "../Render/Texture2D";
 import { UniformBuffer } from "../Render/UniformBuffer";
 import { WebGLContext } from "../Render/WebGL/WebGLContext";
-import { WebGLPipeline } from "../Render/WebGL/WebGLPipeline";
+import { WebGLShader } from "../Render/WebGL/WebGLShader";
 import { WebGLUniformBuffer } from "../Render/WebGL/WebGLUniformBuffer";
 import { WebGPUContext } from "../Render/WebGPU/WebGPUContext";
-import { WebGPUPipieline } from "../Render/WebGPU/WebGPUPipeline";
+import { WebGPUShader } from "../Render/WebGPU/WebGPUShader";
 import { WebGPUTexture2D } from "../Render/WebGPU/WebGPUTexture2D";
 import { WebGPUUniformBuffer } from "../Render/WebGPU/WebGPUUniformBuffer";
+import { Resource } from "../Resource";
 
 export interface Descriptor {
     textures?: [];
 }
 
-export class Material {
+export class Material extends Resource<Material> {
     public descriptor: Map<string, any>;
-    public bindGroup?: GPUBindGroup;
-    public pipeline?: Pipeline;
+    public bindGroup: GPUBindGroup | undefined;
 
-    constructor() {
+    constructor(public shader: Shader) {
+        super();
+
         this.descriptor = new Map();
-    }
-
-    test(video: HTMLVideoElement) {
-        // const response = await fetch('nothingonme.mp4');
-        // const blob = await response.blob();
-
-        // const imgBitmap = await createImageBitmap(blob);
-        // const texture = WebGPUContext.device.importExternalTexture({ source: video });
-
-        // WebGPUContext.queue.copyExternalImageToTexture({ source: video }, { texture: WebGPUTexture.TEST_TEXTURE.texture }, [1280, 720]);
     }
 
     set(name: string, resource: any): void {
         this.descriptor.set(name, resource);
     }
 
-    /*change(tex: VideoTexture) {
-        this.descriptor[1] = {
-            binding: 1,
-            resource: tex.as<WebGPUVideoTexture>().texture?.textureView
-        };
-    }*/
-
     build(): void {
         if(Renderer.api === API.WebGL) {
             const gl = WebGLContext.gl;
-            const shader = this.pipeline?.as<WebGLPipeline>().shader;
+            const shader = this.shader.as<WebGLShader>();
             for (const [name, resource] of this.descriptor) {
                 const binding = shader?.uniforms.get(name);
 
@@ -60,12 +45,12 @@ export class Material {
             return;
         }
 
-        const shader = this.pipeline?.as<WebGPUPipieline>().shader;
+        const shader = this.shader.as<WebGPUShader>();
         if(!shader?.bindGroups[2]) return;
 
         let entries: GPUBindGroupEntry[] = [];
         for (const [name, resource] of this.descriptor) {
-            const binding = shader.bindGroups[2].get(name);
+            const binding = shader.bindGroups[2].get(name).binding;
 
             if(typeof binding === 'undefined') {
                 console.log("NO BINDING");
@@ -87,7 +72,7 @@ export class Material {
         console.log("Material Descriptors", entries, this.descriptor, entries.length);
 
         this.bindGroup = WebGPUContext.device.createBindGroup({
-            layout: this.pipeline!.as<WebGPUPipieline>().pipeline.getBindGroupLayout(2),
+            layout: shader.customBindGroupLayout,
             entries: entries
         });
     }

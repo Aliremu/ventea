@@ -1,9 +1,9 @@
-import { API, Renderer } from "./Renderer";
-import { Shader } from "./Shader";
-import WebGLSrc from "./WebGL/phong.glsl";
-import WebGPUSrc from "./WebGPU/phong.wgsl";
+import { API, Renderer } from "../Renderer";
+import { Shader } from "../Shader";
+import WebGLSrc from "./glsl/basic.glsl";
+import WebGPUSrc from "./wgsl/basic.wgsl";
 
-export class PhongShaderMaterial extends Shader {
+export class BasicShaderMaterial extends Shader {
     constructor() {
         switch(Renderer.api) {
             case API.WebGL: {
@@ -11,7 +11,7 @@ export class PhongShaderMaterial extends Shader {
 
                 if(!regex) throw Error("Shader is not valid!");
 
-                super(regex.at(1)!, regex.at(2)!);
+                super('Basic', regex.at(1)!, regex.at(2)!);
                 break;
             }
 
@@ -20,7 +20,7 @@ export class PhongShaderMaterial extends Shader {
 
                 if(!regex) throw Error("Shader is not valid!");
 
-                super(regex.at(1)!, regex.at(2)!);
+                super('Basic', regex.at(1)!, regex.at(2)!);
                 break;
         }
     }

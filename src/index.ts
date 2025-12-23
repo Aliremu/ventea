@@ -15,7 +15,6 @@ import { Texture2D } from "./Render/Texture2D";
 import { VideoTexture } from "./Render/VideoTexture";
 
 import { Mesh } from "./Mesh/Mesh";
-import { GLTFMesh } from "./Mesh/GLTFMesh";
 import { GridMesh } from "./Mesh/GridMesh";
 import { PlaneMesh } from "./Mesh/PlaneMesh";
 import { BoxMesh } from "./Mesh/BoxMesh";
@@ -40,12 +39,16 @@ import { CapsuleMesh } from "./Mesh/CapsuleMesh";
 import { LightType } from "./Enums/LightType";
 
 import { LightCreateInfo } from "./Interfaces/LightCreateInfo";
-
-// math.setDefaultType(Array);
+import { Sampler, SamplerFilter } from "./Render/Sampler";
+import { TextureFormat } from "./Render/TextureFormat";
+import { RenderTarget } from "./Render/RenderTarget";
+import { PBRShaderMaterial } from "./Render/Shader/PBRShaderMaterial";
+import { MeshData } from "./Mesh/MeshData";
+import { Shader } from "./Render/Shader";
 
 interface InitEngineDesc {
-    api?: API;
-    physics?: boolean
+    api: API;
+    physics: boolean
 };
 
 class Engine {
@@ -55,67 +58,22 @@ class Engine {
         this.canvas = canvas;
     }
 
-    init(settings?: InitEngineDesc) {
-        const api: API = settings?.api ?? API.WebGPU;
-        const physics: boolean = settings?.physics ?? true;
+    init(settings?: Partial<InitEngineDesc>) {
+        console.log(settings);
+        settings = Utils.merge(settings, { 
+            api: API.WebGL, 
+            physics: false
+        });
 
         let inits = [];
 
         inits.push(Input.init());
-        inits.push(Renderer.init(this.canvas, api));
-        if(physics) inits.push(Physics.init());
+        inits.push(Renderer.init(this.canvas, settings.api));
+
+        if(settings.physics) inits.push(Physics.init());
 
         return Promise.all(inits);
     }
-}
-
-const test = (size: number) => {
-    let i = 0;
-
-    let test = new Array(size);
-    for(let j = 0; j < size; j++) {
-        test[j] = new Vector3();
-    }
-
-    const startArr = console.time("ARR");
-    for(const vec of test) {
-        vec.x = i * 2;
-        vec.y = i * 2;
-        vec.z = i * 2;
-        i++;
-    }
-    const endArr = console.timeEnd("ARR");
-    console.log("ARR: ", test[size-1].x);
-
-    // setDefaultSize(100000);
-    
-    const world = createWorld(size);
-    registerComponent(world, TestComponent);
-    for(let j = 0; j < size; j++) {
-        const ent = addEntity(world);
-        addComponent(world, TestComponent, ent);
-    }
-
-    i = 0;
-    const query = defineQuery([TestComponent]);
-    const result = query(world);
-    const startECS = console.time("ECS");
-    for(const e of result) {
-        TestComponent.x[e] = i * 2;
-        TestComponent.y[e] = i * 2;
-        TestComponent.z[e] = i * 2;
-        i++;
-    }
-    const endECS = console.timeEnd("ECS");
-    console.log("ECS: ", TestComponent.x[size-1]);
-
-
-    // const timeArr = endArr - startArr;
-    // const timeECS = endECS - startECS;
-
-    // const diff = (timeArr - timeECS) / timeArr;
-
-    // console.log(`ARR: ${timeArr}ms, ECS: ${timeECS}ms, Diff: ${diff}%`);
 }
 
 export {
@@ -147,9 +105,16 @@ export {
 
     Texture2D,
     VideoTexture,
+    Sampler,
+    SamplerFilter,
+    TextureFormat,
+    RenderTarget,
 
+    Shader,
+    PBRShaderMaterial,
+
+    MeshData,
     Mesh,
-    GLTFMesh,
     GridMesh,
     PlaneMesh,
     BoxMesh, 
@@ -174,6 +139,5 @@ export {
     Shape,
     BodyType,
 
-    math,
-    test
+    math
 };

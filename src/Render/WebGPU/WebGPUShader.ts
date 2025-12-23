@@ -13,23 +13,26 @@ const TYPE_MAP: Map<string, GPUVertexFormat> = new Map<string, GPUVertexFormat>(
 ]);
 
 export class WebGPUShader implements IShader {
-
     public vertModule: GPUShaderModule;
     public fragModule: GPUShaderModule;
 
     public uniformBuffers: WebGPUUniformBuffer[] | WebGPUStorageBuffer[];
+    public customBuffer: WebGPUUniformBuffer;
 
     public uniformBindGroup: GPUBindGroup = null!;
     public transformBindGroup: GPUBindGroup = null!;
+    public customBindGroup: GPUBindGroup = null!;
 
-    public vertex: Map<string, GPUVertexBufferLayout>;
-    public bindGroups: Map<string, number>[];
+    public uniformBindGroupLayout: GPUBindGroupLayout = null!;
+    public transformBindGroupLayout: GPUBindGroupLayout = null!;
+    public customBindGroupLayout: GPUBindGroupLayout = null!;
+
+    public vertexAttributes: Map<string, GPUVertexBufferLayout>;
+    public bindGroups: Map<string, any>[];
 
     constructor(public vertSrc: string, public fragSrc: string) {
         this.bindGroups = [];
 
-        //regex.at(1)!
-        //regex.at(2)!
         this.vertModule = WebGPUContext.device.createShaderModule({ code: vertSrc });
         this.fragModule = WebGPUContext.device.createShaderModule({ code: fragSrc });
 
@@ -38,7 +41,7 @@ export class WebGPUShader implements IShader {
         this.uniformBuffers[1] = WebGPURendererAPI.transformBuffer;
         this.uniformBuffers[2] = WebGPURendererAPI.lightsBuffer;
 
-        this.vertex = new Map();
+        this.vertexAttributes = new Map();
         const reflect = new WgslReflect(vertSrc + fragSrc);
 
         for(const input of (reflect.entry.vertex[0] as any).inputs) {
@@ -57,12 +60,12 @@ export class WebGPUShader implements IShader {
                 stepMode: 'vertex'
             };
 
-            this.vertex.set(input.name, layout);
+            this.vertexAttributes.set(input.name, layout);
         }
 
         const groups = reflect.getBindGroups();
 
-        console.log(groups);
+        // console.log(groups);
 
         for(const group in groups) {
             this.bindGroups[group] = new Map();
@@ -71,61 +74,81 @@ export class WebGPUShader implements IShader {
             for(const binding of bindings) {
                 const resource = binding.resource as any;
                 const name = resource.name;
-                this.bindGroups[group].set(name, resource.binding);
+                this.bindGroups[group].set(name, resource);
             }
         }
 
+        let customBufferSize = (groups[2][0].resource as any).size;
+        this.customBuffer = new WebGPUUniformBuffer(customBufferSize);
+        this.uniformBuffers[3] = this.customBuffer;
 
+        this.uniformBindGroupLayout = WebGPUContext.device.createBindGroupLayout({
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    buffer: {}
+                }
+            ]
+        });
 
-        // this.uniformBindGroupLayout = WebGPUContext.device.createBindGroupLayout({
-        //     entries: [
-        //         {
-        //             binding: 0,
-        //             visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        //             buffer: {}
-        //         },
-        //         {
-        //             binding: 1,
-        //             visibility: GPUShaderStage.FRAGMENT,
-        //             buffer: {}
-        //         }
-        //         ,
-        //         {
-        //             binding: 2,
-        //             visibility: GPUShaderStage.FRAGMENT,
-        //             buffer: {}
-        //         }
-        //     ]
-        // });
+        this.transformBindGroupLayout = WebGPUContext.device.createBindGroupLayout({
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    buffer: {}
+                },
+                {
+                    binding: 1,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    buffer: {}
+                }
+            ]
+        });
 
-        // // 🗄️ Bind Group
-        // // ✍ This would be used when *encoding commands*
-        // this.uniformBindGroup = WebGPUContext.device.createBindGroup({
-        //     layout: this.uniformBindGroupLayout,
-        //     entries: [
-        //         {
-        //             binding: 0,
-        //             resource: {
-        //                 buffer: this.uniformBuffers[0].buffer
-        //             }
-        //         },
-        //         {
-        //             binding: 1,
-        //             resource: {
-        //                 buffer: this.uniformBuffers[1].buffer
-        //             }
-        //         },
-        //     ]
-        // });
+        this.customBindGroupLayout = WebGPUContext.device.createBindGroupLayout({
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    buffer: {}
+                }
+            ]
+        });
+
+        this.setupBindGroups();
+    }
+
+    setInt(name: string, val: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setFloat(name: string, val: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setVec2(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setVec3(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setVec4(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setMat3(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
+    }
+    setMat4(name: string, val: Float32List): void {
+        throw new Error("Method not implemented.");
     }
 
     writeUniformBuffer(binding: number, bufferOffset: number, data: BufferSource | SharedArrayBuffer, dataOffset: number, size: number) {
         WebGPUContext.queue.writeBuffer(this.uniformBuffers[binding].buffer, bufferOffset, data, dataOffset, size);
     }
 
-    createBindGroup(pipeline: GPURenderPipeline) {
+    setupBindGroups() {
         this.uniformBindGroup = WebGPUContext.device.createBindGroup({
-            layout: pipeline.getBindGroupLayout(0),
+            layout: this.uniformBindGroupLayout,
             entries: [
                 {
                     binding: 0,
@@ -133,20 +156,11 @@ export class WebGPUShader implements IShader {
                         buffer: this.uniformBuffers[0].buffer
                     }
                 }
-                // {
-                //     binding: 1,
-                //     resource: texture.textureView
-
-                // },
-                // {
-                //     binding: 2,
-                //     resource: texture.sampler
-                // }
             ]
         });
 
         this.transformBindGroup = WebGPUContext.device.createBindGroup({
-            layout: pipeline.getBindGroupLayout(1),
+            layout: this.transformBindGroupLayout,
             entries: [
                 {
                     binding: 0,
@@ -158,6 +172,18 @@ export class WebGPUShader implements IShader {
                     binding: 1,
                     resource: {
                         buffer: WebGPURendererAPI.lightsBuffer.buffer
+                    }
+                }
+            ]
+        });
+
+        this.customBindGroup = WebGPUContext.device.createBindGroup({
+            layout: this.customBindGroupLayout,
+            entries: [
+                {
+                    binding: 0,
+                    resource: {
+                        buffer: this.customBuffer.buffer
                     }
                 }
             ]

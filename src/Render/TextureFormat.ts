@@ -1,4 +1,5 @@
 export enum TextureFormat {
     BGRA8UNORM,
-    BGRA8SRGB
+    BGRA8SRGB,
+    RGBA32F,
 }

@@ -23,7 +23,7 @@ export class Input {
         });
 
         document.addEventListener('mousemove', (e) => {
-            if(!document.pointerLockElement) return;
+            // if(!document.pointerLockElement) return;
 
             Input.MOUSE_X = e.clientX;
             Input.MOUSE_Y = e.clientY;
@@ -47,6 +47,10 @@ export class Input {
 
     static isMouseDown(mouse: number) {
         return Input.MOUSE_MAP.get(mouse);
+    }
+
+    static setKeyDown(key: string, pressed: boolean) {
+        Input.KEY_MAP.set(key, pressed);
     }
 
     static getMouseX() {

@@ -1,14 +1,6 @@
-import { DebugShaderMaterial } from "../Render/DebugShaderMaterial";
-import { Pipeline, PipelineLayout, ShaderType } from "../Render/Pipeline";
-import { Texture2D } from "../Render/Texture2D";
-import { UniformBuffer } from "../Render/UniformBuffer";
-import { WebGPUContext } from "../Render/WebGPU/WebGPUContext";
-import { WebGPUPipieline } from "../Render/WebGPU/WebGPUPipeline";
-import { WebGPUTexture2D } from "../Render/WebGPU/WebGPUTexture2D";
-import { Material } from "./Material";
-import { Mesh } from "./Mesh";
+import { MeshData } from "./MeshData";
 
-export class GridMesh extends Mesh {
+export class GridMesh extends MeshData {
     constructor(width: number, height: number) {
         let positions: Float32Array = new Float32Array(2 * (width + 1 + height + 1) * 3);
         let normals: Float32Array   = new Float32Array(2 * (width + 1 + height + 1) * 3).fill(0);
@@ -51,41 +43,5 @@ export class GridMesh extends Mesh {
         }
 
         super(positions, normals, texCoords, indices);
-
-        const layout: PipelineLayout = {
-            layout: [
-                { name: 'position',  type: ShaderType.Float3 },
-                { name: 'normal',    type: ShaderType.Float3 },
-                { name: 'tex_coord', type: ShaderType.Float2 },
-            ],
-            backfaceCull: true,
-            depthTest: true,
-            shader: new DebugShaderMaterial(),
-            wireframe: true
-        };
-
-        this.pipeline = new Pipeline(layout);
-
-        const buffer = new UniformBuffer(28);
-        buffer.data.fill(0);
-        buffer.data[0] = 1;
-        buffer.data[1] = 1;
-        buffer.data[2] = 1;
-        buffer.data[3] = 1;
-
-        buffer.setData(0, buffer.data, 0, 7);
-
-        const material = new Material();
-        material.pipeline = this.pipeline;
-
-        material.set('pbr_material', buffer);
-        material.set('albedoTexture', Texture2D.DEFAULT_TEXTURE);
-        material.set('normalTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('ao_m_rTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('occlusionTexture', Texture2D.NORMAL_TEXTURE);
-
-        material.build();
-
-        this.subMeshes.push({ baseIndex: 0, baseVertex: 0, indexCount: index, material: material });
     }
 }

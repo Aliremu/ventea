@@ -1,7 +1,7 @@
 import { defineQuery } from 'bitecs';
 import Stats, { Panel } from "stats.js";
 import { mat4 } from 'gl-matrix';
-import { Camera } from '../Camera/Camera';
+import { ICamera } from '../Camera/ICamera';
 import { Mesh } from '../Mesh/Mesh';
 import { Resources } from '../Resources';
 import { MeshRenderer, Position, Rotation, Scale } from '../Scene/Components';
@@ -15,9 +15,15 @@ import { WebGPUPipieline } from './WebGPU/WebGPUPipeline';
 import { WebGPURendererAPI } from './WebGPU/WebGPURendererAPI';
 import { Pipeline, ShaderType } from './Pipeline';
 import debugSrc from './WebGPU/debug.wgsl';
-import { PBRShaderMaterial } from './PBRShaderMaterial';
-import { DebugShaderMaterial } from './DebugShaderMaterial';
+import { PBRShaderMaterial } from './Shader/PBRShaderMaterial';
+import { DebugShaderMaterial } from './Shader/DebugShaderMaterial';
 import { Physics } from '../Physics/Physics';
+import { Shader } from './Shader';
+import { ShaderLoader } from './Shader/ShaderLoader';
+
+// @ts-ignore
+import spec from './Shader/BRDF LUT.png';
+import { Wrap } from './Sampler';
 
 export enum API {
     WebGL,
@@ -39,6 +45,11 @@ export class Renderer {
     static instanceList: Map<number, Array<mat4>> = new Map<number, Array<mat4>>();
 
     static debugPipeline: Pipeline;
+    static staticOpaquePipeline: Pipeline;
+    static skyboxPipeline: Pipeline;
+    static shadowPipeline: Pipeline;
+
+    static specular_lut: Texture2D;
 
     static async init(canvas: HTMLCanvasElement, api: API = API.WebGPU) {
         _canvas = canvas;
@@ -46,7 +57,7 @@ export class Renderer {
         _stats = new Stats();
         _tpsPanel = _stats.addPanel(new Stats.Panel('TPS', '#ff8', '#221'));
         _stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
-        document.body.appendChild(_stats.dom);
+        // document.body.appendChild(_stats.dom);
 
         this.api = api;
         this.commandBuffer = new CommandBuffer();
@@ -59,12 +70,14 @@ export class Renderer {
                 _api = await WebGPURendererAPI.create(canvas);
                 break;
             default:
-                throw Error("Invalid Renderer API selected!");
+                throw new Error("Invalid Renderer API selected!");
                 break;
         }
 
         Texture2D.DEFAULT_TEXTURE = new Texture2D(1, 1);
         Texture2D.NORMAL_TEXTURE = new Texture2D(1, 1);
+
+        ShaderLoader.loadShaders();
 
         this.debugPipeline = new Pipeline({
             layout: [
@@ -77,22 +90,61 @@ export class Renderer {
             shader: new DebugShaderMaterial(),
             wireframe: true
         });
+
+        this.staticOpaquePipeline = new Pipeline({
+            layout: [
+                { name: 'position',  type: ShaderType.Float3 },
+                { name: 'normal',    type: ShaderType.Float3 },
+                { name: 'tex_coord', type: ShaderType.Float2 },
+            ],
+            backfaceCull: true,
+            depthTest: true,
+            shader: Shader.find('PBR'),
+            wireframe: false
+        });
+
+        this.skyboxPipeline = new Pipeline({
+            backfaceCull: false,
+            depthTest: true,
+            layout: [
+                {   name: 'tex_coord', type: ShaderType.Float2 }
+            ],
+            shader: Shader.find('Skybox'),
+            wireframe: false
+        });
+
+        this.shadowPipeline = new Pipeline({
+            backfaceCull: true,
+            depthTest: true,
+            layout: [
+                {   name: 'position', type: ShaderType.Float3 },
+                {   name: 'tex_coord', type: ShaderType.Float2 }
+            ],
+            shader: Shader.find('Shadow'),
+            wireframe: false
+        });
+
+        PBRShaderMaterial.DEFAULT = new PBRShaderMaterial();
+
+        this.specular_lut = await Resources.loadTexture(spec, {
+            wrapS: Wrap.Clamp,
+            wrapT: Wrap.Clamp,
+            mip: false
+        });
     }
 
-    static beginRenderPass(time: number, camera: Camera) {
-        _stats.begin();
+    static beginRenderPass(time: number, camera: ICamera) {
         _api.beginRenderPass(time, camera);
     }
 
-    static endRenderPass() {
-        for (const fn of this.commandBuffer) {
-            fn(WebGPURendererAPI.passEncoder);
-        }
+    static endRenderPass(scene: Scene) {
+        // for (const fn of this.commandBuffer) {
+        //     fn(WebGPURendererAPI.passEncoder);
+        // }
 
-        this.commandBuffer.clear();
+        // this.commandBuffer.clear();
 
-        _api.endRenderPass();
-        _stats.end();
+        _api.endRenderPass(scene);
     }
 
     static submit(fn: Function) {
@@ -130,7 +182,7 @@ export class Renderer {
             let count = 0;
 
             for (const t of arr) {
-                mesh.pipeline.as<WebGPUPipieline>().shader.writeUniformBuffer(1, (i + count) * 64, t as Float32Array, 0, 16);
+                // mesh.pipeline.as<WebGPUPipieline>().shader.writeUniformBuffer(1, (i + count) * 64, t as Float32Array, 0, 16);
                 count++;
             }
 
@@ -138,8 +190,7 @@ export class Renderer {
         }
     }
 
-    static renderScene(scene: Scene, time: number, camera: Camera) {
-        this.beginRenderPass(time, camera);
+    static renderScene(scene: Scene, time: number, camera: ICamera) {
 
         // this.submit((passEncoder: GPURenderPassEncoder) => {
         //     let i = 0;
@@ -235,11 +286,15 @@ export class Renderer {
         //         }
         //     }
         // });
+        _stats.begin();
 
+        this.beginRenderPass(time, camera);
         _api.renderScene(scene, time, camera);
         // _api.renderScene(scene, time, camera, this.debugPipeline);
 
-        this.endRenderPass();
+        this.endRenderPass(scene);
+        
+        _stats.end();
 
         _tpsPanel.update(1000 / Physics.frameTime, 60);
     }

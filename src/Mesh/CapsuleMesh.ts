@@ -1,9 +1,6 @@
-import { Texture2D } from "../Render/Texture2D";
-import { UniformBuffer } from "../Render/UniformBuffer";
-import { Material } from "./Material";
-import { Mesh } from "./Mesh";
+import { MeshData } from "./MeshData";
 
-export class CapsuleMesh extends Mesh {
+export class CapsuleMesh extends MeshData {
     constructor(radius = 0.5, halfDepth = 0.5, rings = 1, latitudes = 16, longitudes = 32) {
         let v = [];
         let n = [];
@@ -304,27 +301,5 @@ export class CapsuleMesh extends Mesh {
         let indices = new Uint32Array(tris);
 
         super(positions, normals, texCoords, indices);
-
-        const buffer = new UniformBuffer(28);
-        buffer.data.fill(0);
-        buffer.data[0] = 1;
-        buffer.data[1] = 1;
-        buffer.data[2] = 1;
-        buffer.data[3] = 1;
-
-        buffer.setData(0, buffer.data, 0, 7);
-
-        const material = new Material();
-        material.pipeline = this.pipeline;
-
-        material.set('pbr_material', buffer);
-        material.set('albedoTexture', Texture2D.DEFAULT_TEXTURE);
-        material.set('normalTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('ao_m_rTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('occlusionTexture', Texture2D.NORMAL_TEXTURE);
-
-        material.build();
-
-        this.subMeshes.push({ baseIndex: 0, baseVertex: 0, indexCount: indices.length, material: material });
     }
 }

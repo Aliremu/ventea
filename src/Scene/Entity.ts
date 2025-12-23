@@ -127,22 +127,8 @@ export class Entity {
             case RigidBody: {
                 if(!Physics.isReady) break;
 
+                let hasColllider = false;
                 let o: CreateBodyDesc = {};
-
-                if (hasComponent(this.scene.world, BoxCollider, this.handle)) {
-                    o.shape = Shape.Box;
-                    o.scale = new Vector3(BoxCollider.x[this.handle], BoxCollider.y[this.handle], BoxCollider.z[this.handle]);
-                }
-
-                if (hasComponent(this.scene.world, SphereCollider, this.handle)) {
-                    o.shape = Shape.Sphere;
-                    o.scale = SphereCollider.radius[this.handle];
-                }
-
-                if (hasComponent(this.scene.world, CapsuleCollider, this.handle)) {
-                    o.shape = Shape.Capsule;
-                    o.scale = new Vector2(CapsuleCollider.radius[this.handle], CapsuleCollider.halfHeight[this.handle]);
-                }
 
                 o.position = new Vector3(Position.x[this.handle], Position.y[this.handle], Position.z[this.handle]);
                 o.rotation = new Vector3(Rotation.x[this.handle], Rotation.y[this.handle], Rotation.z[this.handle]);
@@ -170,9 +156,18 @@ export class Entity {
                             indexCount: subMesh.indexCount,
                         });
                     }
+
+                    if(subMeshes.length == 0) {
+                        subMeshes.push({
+                            baseVertex: 0,
+                            baseIndex: 0,
+                            indexCount: mesh.meshData.indices.length
+                        });
+                    }
+
                     const meshDesc: CreateMeshDesc = {
-                        vertices: mesh.positionBuffer.data,
-                        indices: mesh.indexBuffer.data,
+                        vertices: mesh.meshData.positionBuffer.data,
+                        indices: mesh.meshData.indexBuffer.data,
                         subMeshes: subMeshes
                     };
 
@@ -180,6 +175,28 @@ export class Entity {
 
                     Physics.post({ m: 'create', o: o });
                     return this;
+                }
+
+                if (hasComponent(this.scene.world, BoxCollider, this.handle)) {
+                    o.shape = Shape.Box;
+                    o.scale = new Vector3(BoxCollider.x[this.handle], BoxCollider.y[this.handle], BoxCollider.z[this.handle]);
+                    hasColllider = true;
+                }
+
+                if (hasComponent(this.scene.world, SphereCollider, this.handle)) {
+                    o.shape = Shape.Sphere;
+                    o.scale = SphereCollider.radius[this.handle];
+                    hasColllider = true;
+                }
+
+                if (hasComponent(this.scene.world, CapsuleCollider, this.handle)) {
+                    o.shape = Shape.Capsule;
+                    o.scale = new Vector2(CapsuleCollider.radius[this.handle], CapsuleCollider.halfHeight[this.handle]);
+                    hasColllider = true;
+                }
+
+                if(!hasColllider) {
+                    throw new Error("Rigid body has no collider! Make sure to assign a collider before a rigid body");
                 }
 
                 Physics.post({ m: 'create', o: o });

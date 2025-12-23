@@ -1,4 +1,4 @@
-import { Mesh } from "./Mesh";
-export declare class SphereMesh extends Mesh {
+import { MeshData } from "./MeshData";
+export declare class SphereMesh extends MeshData {
     constructor(radius?: number);
 }

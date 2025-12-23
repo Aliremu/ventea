@@ -3,4 +3,5 @@ export declare namespace Utils {
     const clamp: (val: number, min: number, max: number) => number;
     const DEG_TO_RAD: number;
     const RAD_TO_DEG: number;
+    const merge: <T>(value1: Partial<T> | undefined, value2: T) => NonNullable<T>;
 }

@@ -33,7 +33,7 @@ export class WebGPUPipieline implements IPipeline {
         */
 
         for (const attrib of layout.layout) {
-            attributesLayout.push(this.shader.vertex.get(attrib.name)!);
+            attributesLayout.push(this.shader.vertexAttributes.get(attrib.name)!);
         }
 
         const topology: GPUPrimitiveTopology = layout.wireframe ? 'line-list' : 'triangle-list';
@@ -87,6 +87,6 @@ export class WebGPUPipieline implements IPipeline {
         };
 
         this.pipeline = WebGPUContext.device.createRenderPipeline(pipelineDesc);
-        this.shader.createBindGroup(this.pipeline);
+        // this.shader.setupBindGroups();
     }
 }

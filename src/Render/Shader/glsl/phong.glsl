@@ -1,9 +1,12 @@
 //Vertex#version 300 es
+#extension GL_ANGLE_multi_draw : require
 precision highp float;
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 tex_coord;
+// layout(location = 3) in int instance_id;
+uniform sampler2D transformTexture;
 
 out vec3 v_FragPos;
 out vec3 v_Normal;
@@ -13,10 +16,30 @@ uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 model;
 
+uniform int instance_id;
+
 void main() {
-    vec4 local = model * vec4(position, 1.0);
+    int pid = 4 * instance_id;
+    int w = 512;
+    int h = 512;
+    ivec2 p1 = ivec2((pid + 0) % w, (pid + 0) / w);
+    ivec2 p2 = ivec2((pid + 1) % w, (pid + 1) / w);
+    ivec2 p3 = ivec2((pid + 2) % w, (pid + 2) / w);
+    ivec2 p4 = ivec2((pid + 3) % w, (pid + 3) / w);
+
+
+    mat4 trans = mat4(
+        texelFetch(transformTexture, p1, 0),
+        texelFetch(transformTexture, p2, 0),
+        texelFetch(transformTexture, p3, 0),
+        texelFetch(transformTexture, p4, 0)
+    );
+
+    // trans = mat4(vec4(1,0,0,0), vec4(0,1,0,0), vec4(0,0,1,0), vec4(0,0,0,1));
+    vec4 local = trans * vec4(position, 1.0);
+    // local.y += float(instance_id);
     v_FragPos = vec3(local);
-    v_Normal = mat3(transpose(inverse(model))) * normal;
+    v_Normal = mat3(transpose(inverse(trans))) * normal;
     v_TexCoord = tex_coord;
 
     vec4 pos = proj * view * local;
@@ -24,6 +47,7 @@ void main() {
 }
 
 //Fragment#version 300 es
+#extension GL_ANGLE_multi_draw : require
 precision highp float;
 
 in vec3 v_FragPos;
@@ -36,17 +60,6 @@ uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 model;
 
-#define MAX_LIGHTS 64
-
-struct Light {
-  vec3 position;
-  vec3 color;
-  float type;
-};
-
-uniform Light lights[MAX_LIGHTS];
-uniform int num_lights;
-
 layout(std140) uniform pbr_material {
 	vec4 base_color;
     float metallic_factor;
@@ -56,8 +69,9 @@ layout(std140) uniform pbr_material {
 
 uniform sampler2D albedoTexture;
 uniform sampler2D normalTexture;
-uniform sampler2D ao_m_rTexture;
-uniform sampler2D occlusionTexture;
+// uniform sampler2D transformTexture;
+// uniform sampler2D ao_m_rTexture;
+// uniform sampler2D occlusionTexture;
 
 mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv) {
     // get edge vectors of the pixel triangle
@@ -112,31 +126,19 @@ void main() {
 
     vec3 normal = normalize(v_Normal);
 
-    if(textureSize(normalTexture, 0).x > 1) {
+    if(textureSize(normalTexture, 0).x > 2) {
         normal = PerturbNormal(v_FragPos, normal, normalTexture, v_TexCoord); // perturb_normal(Normal, Eye, v_TexCoord);
     }
 
     vec3 eye = -view[3].xyz * mat3(view);
+
+    vec3 lightPos = vec3(0.0, 10.0, 0.0);
+    vec3 lightDir = normalize(v_FragPos - lightPos);
+    // vec3 lightDir = vec3(0.0, -1.0, 0.0);
     vec3 viewDir = normalize(eye - v_FragPos);
 
-    /*vec3 lightPos = vec3(0.0, 10.0, 0.0);
-    vec3 lightDir = normalize(v_FragPos - lightPos);
-    // vec3 lightDir = vec3(0.0, -0.5, -1.0);
+    float thing = pow(dot(normal, -lightDir) * 0.5 + 0.5, 2.0);
 
-    float thing = pow(dot(normal, -lightDir) * 0.5 + 0.5, 2.0);*/
-    vec3 L0 = vec3(0.0);
-
-    for(int i = 0; i < MAX_LIGHTS; i++) {
-        if(i >= num_lights) {
-            break;
-        }
-
-        Light light = lights[i];
-        vec3 lightDir = normalize(v_FragPos - light.position);
-
-        L0 += albedo * pow(dot(normal, -lightDir) * 0.5 + 0.5, 2.0);
-    }
-
-    color = vec4(L0, alpha);
+    color = vec4(thing * albedo, alpha);
     // color = vec4(normalize(v_Normal), alpha);
 }

@@ -2,38 +2,38 @@ export const mode: string;
 export namespace module {
     const rules: ({
         test: RegExp;
+        type: string;
+        loader?: undefined;
+        options?: undefined;
+        exclude?: undefined;
+        use?: undefined;
+    } | {
+        test: RegExp;
         loader: string;
         options: {
             inline: string;
         };
+        type?: undefined;
         exclude?: undefined;
         use?: undefined;
-        type?: undefined;
     } | {
         test: RegExp;
         exclude: RegExp;
         use: {
             loader: string;
         };
+        type?: undefined;
         loader?: undefined;
         options?: undefined;
-        type?: undefined;
     } | {
         test: RegExp;
         use: {
             loader: string;
         };
-        loader?: undefined;
-        options?: undefined;
-        exclude?: undefined;
         type?: undefined;
-    } | {
-        test: RegExp;
-        type: string;
         loader?: undefined;
         options?: undefined;
         exclude?: undefined;
-        use?: undefined;
     })[];
 }
 export namespace output {

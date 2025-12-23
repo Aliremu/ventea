@@ -1,6 +1,7 @@
+import { mat4 } from "gl-matrix";
 import { Vector3 } from "../Math/Vector";
-import { Camera } from "./Camera";
-export declare class OrthographicCamera extends Camera {
+import { ICamera } from "./ICamera";
+export declare class OrthographicCamera implements ICamera {
     left: number;
     right: number;
     bottom: number;
@@ -8,9 +9,12 @@ export declare class OrthographicCamera extends Camera {
     near: number;
     far: number;
     zoom: number;
-    eye: Vector3;
+    position: Vector3;
     target: Vector3;
     up: Vector3;
+    projectionMatrix: mat4;
+    viewMatrix: mat4;
+    isOrthographic: boolean;
     constructor(left: number, right: number, bottom: number, top: number, near: number, far: number);
     updateView(): void;
     updateProjection(): void;

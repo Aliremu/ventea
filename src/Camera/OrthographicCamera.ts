@@ -1,34 +1,37 @@
 import { mat4 } from "gl-matrix";
 import { Vector3 } from "../Math/Vector";
-import { Camera } from "./Camera";
+import { ICamera } from "./ICamera";
 
-export class OrthographicCamera extends Camera {
+export class OrthographicCamera implements ICamera {
     public zoom: number;
 
-    public eye: Vector3;
+    public position: Vector3;
+
     public target: Vector3;
     public up: Vector3;
 
-    constructor(public left: number, public right: number, public bottom: number, public top: number, public near: number, public far: number) {
-        super();
+    public projectionMatrix: mat4;
+    public viewMatrix: mat4;
+    public isOrthographic: boolean;
 
+    constructor(public left: number, public right: number, public bottom: number, public top: number, public near: number, public far: number) {
         this.zoom = 1;
 
-        this.eye    = new Vector3();
-        this.target = new Vector3();
-        this.up     = new Vector3(0, 1, 0);
+        this.target = new Vector3(0, 0, -1);
+        this.up     = new Vector3(0, 1,  0);
 
+        this.position         = new Vector3(0, 0,  0);
         this.projectionMatrix = mat4.create();
         this.viewMatrix       = mat4.create();
+        this.isOrthographic = true;
 
         mat4.ortho(this.projectionMatrix, left, right, bottom, top, near, far);
-        mat4.lookAt(this.viewMatrix, this.eye.buffer, this.target.buffer, this.up.buffer);
-        // mat4.invert(this.viewMatrix, this.viewMatrix);
+        mat4.lookAt(this.viewMatrix, this.position.buffer, this.target.buffer, this.up.buffer);
     }
+    
 
     updateView() {
-        mat4.lookAt(this.viewMatrix, this.eye.buffer, this.target.buffer, this.up.buffer);
-        // mat4.invert(this.viewMatrix, this.viewMatrix);
+        mat4.lookAt(this.viewMatrix, this.position.buffer, this.target.buffer, this.up.buffer);
     }
 
     updateProjection() {

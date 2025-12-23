@@ -1,9 +1,9 @@
-import { API, Renderer } from "./Renderer";
-import { Shader } from "./Shader";
-import WebGLSrc from "./WebGL/basic.glsl";
-import WebGPUSrc from "./WebGPU/basic.wgsl";
+import { API, Renderer } from "../Renderer";
+import { Shader } from "../Shader";
+import WebGLSrc from "./glsl/debug.glsl";
+import WebGPUSrc from "./wgsl/debug.wgsl";
 
-export class BasicShaderMaterial extends Shader {
+export class DebugShaderMaterial extends Shader {
     constructor() {
         switch(Renderer.api) {
             case API.WebGL: {
@@ -11,7 +11,7 @@ export class BasicShaderMaterial extends Shader {
 
                 if(!regex) throw Error("Shader is not valid!");
 
-                super(regex.at(1)!, regex.at(2)!);
+                super('Debug', regex.at(1)!, regex.at(2)!);
                 break;
             }
 
@@ -20,7 +20,7 @@ export class BasicShaderMaterial extends Shader {
 
                 if(!regex) throw Error("Shader is not valid!");
 
-                super(regex.at(1)!, regex.at(2)!);
+                super('Debug', regex.at(1)!, regex.at(2)!);
                 break;
         }
     }

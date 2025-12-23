@@ -1,6 +1,6 @@
 import { defineQuery, pipe } from "bitecs";
 import { mat4 } from "gl-matrix";
-import { Camera } from "../../Camera/Camera";
+import { ICamera } from "../../Camera/ICamera";
 import { Utils } from "../../Math/Utils";
 import { Vector3 } from "../../Math/Vector";
 import { Mesh } from "../../Mesh/Mesh";
@@ -38,7 +38,7 @@ export class WebGPURendererAPI extends RendererAPI {
     static transformBuffer: WebGPUStorageBuffer;
     static lightsBuffer: WebGPUStorageBuffer;
 
-    beginRenderPass(time: number, camera: Camera) {
+    beginRenderPass(time: number, camera: ICamera) {
         const device = WebGPUContext.device;
         const context = WebGPUContext.context;
         const canvas = WebGPUContext.canvas;
@@ -83,7 +83,7 @@ export class WebGPURendererAPI extends RendererAPI {
         WebGPURendererAPI.passEncoder = WebGPURendererAPI.commandEncoder.beginRenderPass(renderPassDesc);
     }
 
-    endRenderPass() {
+    endRenderPass(scene: Scene) {
         WebGPURendererAPI.passEncoder.end();
 
         // WebGPURendererAPI.commandEncoder.copyTextureToTexture(
@@ -124,11 +124,11 @@ export class WebGPURendererAPI extends RendererAPI {
         return new WebGPURendererAPI();
     }
 
-    submitMesh(scene: Scene, time: number, camera: Camera, mesh: Mesh, pipeline: Pipeline) {
+    submitMesh(scene: Scene, time: number, camera: ICamera, mesh: Mesh, pipeline: Pipeline) {
         
     }
 
-    renderScene(scene: Scene, time: number, camera: Camera, pipe?: Pipeline): void {
+    renderScene(scene: Scene, time: number, camera: ICamera, pipe?: Pipeline): void {
         let i = 0;
         const ents = meshQuery(scene.world);
         const lights = lightQuery(scene.world);
@@ -186,7 +186,7 @@ export class WebGPURendererAPI extends RendererAPI {
             mat4.rotateX(transform, transform, Rotation.x[eid]);
             mat4.rotateZ(transform, transform, Rotation.z[eid]);
             mat4.scale(transform, transform, [Scale.x[eid], Scale.y[eid], Scale.z[eid]]);
-            const pipeline = pipe ? pipe.as<WebGPUPipieline>() : mesh.pipeline.as<WebGPUPipieline>();
+            const pipeline = Renderer.staticOpaquePipeline.as<WebGPUPipieline>(); //pipe ? pipe.as<WebGPUPipieline>() : mesh.pipeline.as<WebGPUPipieline>();
 
             WebGPURendererAPI.transformBuffer.data.set(transform, i * 16);
 
@@ -202,10 +202,10 @@ export class WebGPURendererAPI extends RendererAPI {
             }
 
             if (lastMesh != mesh) {
-                passEncoder.setVertexBuffer(0, (mesh.positionBuffer.as<WebGPUVertexBuffer>()).buffer);
-                passEncoder.setVertexBuffer(1, (mesh.normalBuffer.as<WebGPUVertexBuffer>()).buffer);
-                passEncoder.setVertexBuffer(2, (mesh.texCoordBuffer.as<WebGPUVertexBuffer>()).buffer);
-                passEncoder.setIndexBuffer((mesh.indexBuffer.as<WebGPUIndexBuffer>()).buffer, 'uint32');
+                passEncoder.setVertexBuffer(0, (mesh.meshData.positionBuffer.as<WebGPUVertexBuffer>()).buffer);
+                passEncoder.setVertexBuffer(1, (mesh.meshData.normalBuffer.as<WebGPUVertexBuffer>()).buffer);
+                passEncoder.setVertexBuffer(2, (mesh.meshData.texCoordBuffer.as<WebGPUVertexBuffer>()).buffer);
+                passEncoder.setIndexBuffer((mesh.meshData.indexBuffer.as<WebGPUIndexBuffer>()).buffer, 'uint32');
                 passEncoder.setBindGroup(0, pipeline.shader.uniformBindGroup);
                 passEncoder.setBindGroup(1, pipeline.shader.transformBindGroup);
             }

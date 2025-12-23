@@ -1,6 +1,45 @@
+import { Sampler, SamplerFilter, Wrap } from "../Sampler";
 import { ITexture2D } from "../Texture2D";
 import { TextureFormat } from "../TextureFormat";
 import { WebGLContext } from "./WebGLContext";
+
+const getFilter = (gl: WebGL2RenderingContext, filter: SamplerFilter): number => {
+    if(filter == SamplerFilter.Nearest) 
+        return gl.NEAREST;
+    else
+        return gl.LINEAR;
+}
+
+const getWrap = (gl: WebGL2RenderingContext, wrap: Wrap): number => {
+    if(wrap == Wrap.Repeat) 
+        return gl.REPEAT;
+    else
+        return gl.CLAMP_TO_EDGE;
+}
+
+const getInternalFormat = (gl: WebGL2RenderingContext, format: TextureFormat): number => {
+    switch(format) {
+        case TextureFormat.BGRA8SRGB: return gl.RGBA;
+        case TextureFormat.BGRA8UNORM: return gl.RGBA;
+        case TextureFormat.RGBA32F: return gl.RGBA32F;
+    }
+}
+
+const getFormat = (gl: WebGL2RenderingContext, format: TextureFormat): number => {
+    switch(format) {
+        case TextureFormat.BGRA8SRGB: return gl.RGBA;
+        case TextureFormat.BGRA8UNORM: return gl.RGBA;
+        case TextureFormat.RGBA32F: return gl.RGBA;
+    }
+}
+
+const getType = (gl: WebGL2RenderingContext, format: TextureFormat): number => {
+    switch(format) {
+        case TextureFormat.BGRA8SRGB: return gl.UNSIGNED_BYTE;
+        case TextureFormat.BGRA8UNORM: return gl.UNSIGNED_BYTE;
+        case TextureFormat.RGBA32F: return gl.FLOAT;
+    }
+}
 
 export class WebGLTexture2D implements ITexture2D {
     public texture: number;
@@ -10,7 +49,7 @@ export class WebGLTexture2D implements ITexture2D {
     //     [TextureFormat.BGRA8SRGB, 'bgra8unorm-srgb']
     // ]);
 
-    constructor(public width: number, public height: number, public format: TextureFormat, public mip: boolean) {
+    constructor(public width: number, public height: number, public format: TextureFormat, public options: Sampler) {
         const gl = WebGLContext.gl;
 
         const texture = gl.createTexture();
@@ -23,28 +62,48 @@ export class WebGLTexture2D implements ITexture2D {
         const format = options.format ?? gl.RGBA;
         const type = options.type ?? gl.UNSIGNED_BYTE;*/
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, getWrap(gl, options.wrapS));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, getWrap(gl, options.wrapT));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, options.mip ? gl.LINEAR_MIPMAP_LINEAR : getFilter(gl, options.minFilter));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, getFilter(gl, options.magFilter));
 
         const data = new Uint8Array(width * height * 4).fill(0xFF);
 
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        // gl.texStorage2D(gl.TEXTURE_2D, 0, getInternalFormat(gl, format), width, height);
+        gl.texImage2D(gl.TEXTURE_2D, 0, getInternalFormat(gl, format), width, height, 0, getFormat(gl, format), getType(gl, format), data);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
 
         this.texture = texture as number;
     }
 
-    setData(data: Uint8Array | ImageBitmap): void {
+    resize(width: number, height: number): void {
         const gl = WebGLContext.gl;
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        const data = new Uint8Array(width * height * 4).fill(0xFF);
+        this.width = width;
+        this.height = height;
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, getInternalFormat(gl, this.format), width, height, 0, getFormat(gl, this.format), getType(gl, this.format), data);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    setData(data: Uint8Array | Float32Array | ImageBitmap): void {
+        const gl = WebGLContext.gl;
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        
         if (data instanceof Uint8Array) {
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            gl.texImage2D(gl.TEXTURE_2D, 0, getInternalFormat(gl, this.format), this.width, this.height, 0, getFormat(gl, this.format), getType(gl, this.format), data);
+        } else if(data instanceof Float32Array) {
+            gl.texImage2D(gl.TEXTURE_2D, 0, getInternalFormat(gl, this.format), this.width, this.height, 0, getFormat(gl, this.format), getType(gl, this.format), data);
         } else {
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            gl.texImage2D(gl.TEXTURE_2D, 0, getInternalFormat(gl, this.format), this.width, this.height, 0, getFormat(gl, this.format), getType(gl, this.format), data);
         }
         
-        if (this.mip) {
+        if (this.options.mip) {
             gl.generateMipmap(gl.TEXTURE_2D);
         }
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
     }
 }

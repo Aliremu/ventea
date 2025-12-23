@@ -11,7 +11,6 @@ import { Resource } from "./Resource";
 import { Texture2D } from "./Render/Texture2D";
 import { VideoTexture } from "./Render/VideoTexture";
 import { Mesh } from "./Mesh/Mesh";
-import { GLTFMesh } from "./Mesh/GLTFMesh";
 import { GridMesh } from "./Mesh/GridMesh";
 import { PlaneMesh } from "./Mesh/PlaneMesh";
 import { BoxMesh } from "./Mesh/BoxMesh";
@@ -29,14 +28,19 @@ import { UniformBuffer } from "./Render/UniformBuffer";
 import { CapsuleMesh } from "./Mesh/CapsuleMesh";
 import { LightType } from "./Enums/LightType";
 import { LightCreateInfo } from "./Interfaces/LightCreateInfo";
+import { Sampler, SamplerFilter } from "./Render/Sampler";
+import { TextureFormat } from "./Render/TextureFormat";
+import { RenderTarget } from "./Render/RenderTarget";
+import { PBRShaderMaterial } from "./Render/Shader/PBRShaderMaterial";
+import { MeshData } from "./Mesh/MeshData";
+import { Shader } from "./Render/Shader";
 interface InitEngineDesc {
-    api?: API;
-    physics?: boolean;
+    api: API;
+    physics: boolean;
 }
 declare class Engine {
     canvas: HTMLCanvasElement;
     constructor(canvas: HTMLCanvasElement);
-    init(settings?: InitEngineDesc): Promise<void[]>;
+    init(settings?: Partial<InitEngineDesc>): Promise<void[]>;
 }
-declare const test: (size: number) => void;
-export { InitEngineDesc, Engine, Renderer, API, Physics, LightType, LightCreateInfo, Vector2, Vector3, Vector4, Utils, Input, Scene, Entity, Resource, Resources, PerspectiveCamera, OrthographicCamera, FirstPersonControls, OrbitControls, Texture2D, VideoTexture, Mesh, GLTFMesh, GridMesh, PlaneMesh, BoxMesh, SphereMesh, CapsuleMesh, MeshRenderer, BoxCollider, SphereCollider, MeshCollider, CapsuleCollider, RigidBody, Velocity, Position, LastPosition, Light, ComputeBuffer, ComputeShader, UniformBuffer, Shape, BodyType, math, test };
+export { InitEngineDesc, Engine, Renderer, API, Physics, LightType, LightCreateInfo, Vector2, Vector3, Vector4, Utils, Input, Scene, Entity, Resource, Resources, PerspectiveCamera, OrthographicCamera, FirstPersonControls, OrbitControls, Texture2D, VideoTexture, Sampler, SamplerFilter, TextureFormat, RenderTarget, Shader, PBRShaderMaterial, MeshData, Mesh, GridMesh, PlaneMesh, BoxMesh, SphereMesh, CapsuleMesh, MeshRenderer, BoxCollider, SphereCollider, MeshCollider, CapsuleCollider, RigidBody, Velocity, Position, LastPosition, Light, ComputeBuffer, ComputeShader, UniformBuffer, Shape, BodyType, math };

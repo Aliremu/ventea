@@ -1,14 +1,14 @@
 /// <reference types="dist" />
-import { Pipeline } from "../Render/Pipeline";
+import { Shader } from "../Render/Shader";
+import { Resource } from "../Resource";
 export interface Descriptor {
     textures?: [];
 }
-export declare class Material {
+export declare class Material extends Resource<Material> {
+    shader: Shader;
     descriptor: Map<string, any>;
-    bindGroup?: GPUBindGroup;
-    pipeline?: Pipeline;
-    constructor();
-    test(video: HTMLVideoElement): void;
+    bindGroup: GPUBindGroup | undefined;
+    constructor(shader: Shader);
     set(name: string, resource: any): void;
     build(): void;
 }

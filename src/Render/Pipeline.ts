@@ -68,4 +68,8 @@ export class Pipeline {
     as<T>(): T {
         return this._impl as unknown as T;
     }
+
+    get layout() {
+        return this._impl.layout;
+    }
 }

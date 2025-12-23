@@ -11,7 +11,7 @@ export class Quat {
             case 3: this.buffer = new Float32Array([values[0], values[1], values[2], 0]); break;
             case 2: this.buffer = new Float32Array([values[0], values[1], 0, 0]); break;
             case 1: this.buffer = new Float32Array([values[0], values[0], values[0]]); break;
-            default: this.buffer = new Float32Array(3); break;
+            default: this.buffer = new Float32Array([0, 0, 0, 1]); break;
         }
     }
 

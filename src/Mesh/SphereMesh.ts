@@ -1,12 +1,6 @@
-import { Texture2D } from "../Render/Texture2D";
-import { UniformBuffer } from "../Render/UniformBuffer";
-import { WebGPUContext } from "../Render/WebGPU/WebGPUContext";
-import { WebGPUPipieline } from "../Render/WebGPU/WebGPUPipeline";
-import { WebGPUTexture2D } from "../Render/WebGPU/WebGPUTexture2D";
-import { Material } from "./Material";
-import { Mesh } from "./Mesh";
+import { MeshData } from "./MeshData";
 
-export class SphereMesh extends Mesh {
+export class SphereMesh extends MeshData {
     constructor(radius = 1.0) {
         let rings = 24;
         let sectors = rings * 2;
@@ -70,30 +64,6 @@ export class SphereMesh extends Mesh {
             i_y++;
         }
 
-        console.log(indices);
-
         super(positions, normals, texCoords, indices);
-
-        const buffer = new UniformBuffer(28);
-        buffer.data.fill(0);
-        buffer.data[0] = 1;
-        buffer.data[1] = 1;
-        buffer.data[2] = 1;
-        buffer.data[3] = 1;
-
-        buffer.setData(0, buffer.data, 0, 7);
-
-        const material = new Material();
-        material.pipeline = this.pipeline;
-
-        material.set('pbr_material', buffer);
-        material.set('albedoTexture', Texture2D.DEFAULT_TEXTURE);
-        material.set('normalTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('ao_m_rTexture', Texture2D.NORMAL_TEXTURE);
-        material.set('occlusionTexture', Texture2D.NORMAL_TEXTURE);
-
-        material.build();
-        
-        this.subMeshes.push({ baseIndex: 0, baseVertex: 0, indexCount: indices.length, material: material });
     }
 }

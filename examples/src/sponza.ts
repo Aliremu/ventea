@@ -18,44 +18,49 @@ canvas.onclick = () => {
     });
 
     const camera = new VENTEA.PerspectiveCamera(90, canvas.width / canvas.height, 0.01, 1000.0);
-    const skyboxTexture = await VENTEA.Resources.load(VENTEA.Texture2D, 'FS003_Day_Sunless.png');
+    const skyboxTexture = await VENTEA.Resources.loadTexture('FS003_Day_Sunless.png', {
+        mip: false
+    });
+
+    // const skyboxTexture = new VENTEA.Texture2D(1, 1);
+    // skyboxTexture.setData(new Uint8Array([0, 0, 0, 255]));
 
     const controls = new VENTEA.FirstPersonControls(camera);
     controls.update();
 
     const scene = new VENTEA.Scene();
+    scene.background = skyboxTexture;
 
-    const skybox = scene.createEntity('Skybox');
-    const skyboxMesh = new VENTEA.SphereMesh(500);
-    skyboxMesh.subMeshes[0].material?.set('albedoTexture', skyboxTexture);
-    skyboxMesh.subMeshes[0].material?.build();
-    skybox.addComponent(VENTEA.MeshRenderer, skyboxMesh);
-    skybox.position.set(0, 20, 0);
-    skybox.rotation.set(0, 0, Math.PI);
+    const mapMesh = await VENTEA.Resources.loadGLTF('Sponza.glb');
 
     const player = scene.createEntity('Player');
-    player.position.set(0, 10, 0);
+    player.position.set(0, 30, 0);
     player
     .addComponent(VENTEA.CapsuleCollider, { radius: 0.35, halfHeight: 0.55 })
     .addComponent(VENTEA.RigidBody, { type: VENTEA.BodyType.Dynamic, restitution: 0 });
     VENTEA.Physics.lockRotation(player.handle);
 
-    // const light = scene.createEntity('Light');
-    // light.addComponent(VENTEA.Light, { r: 0.7, g: 0.2, b: 0.7, type: VENTEA.LightType.Point });
-    // light.position.set(0, 2, 0);
+    const light = scene.createEntity('Light');
+    light.addComponent(VENTEA.Light, { r: 0.7, g: 0.9, b: 1, type: VENTEA.LightType.Directional });
+    light.position.set(0, 1, 0);
 
     const light2 = scene.createEntity('Light');
+    const aaa = new VENTEA.Mesh(new VENTEA.SphereMesh(0.1));
     light2
-    .addComponent(VENTEA.MeshRenderer, new VENTEA.SphereMesh(0.1))
-    .addComponent(VENTEA.Light, { r: 1, g: 1, b: 1, type: VENTEA.LightType.Point });
+    .addComponent(VENTEA.MeshRenderer, aaa)
+    .addComponent(VENTEA.Light, { r: 1, g: 0.8, b: 0.4, type: VENTEA.LightType.Point });
 
     controls.target = player.position;
+
+    for(let x = 0; x < 1; x++) {
+        const map = scene.createEntity('Map');
+        map.position.x = x * 30;
+        // map.scale.set(10, 10, 10);
+        map.addComponent(VENTEA.MeshRenderer, mapMesh)
+           .addComponent(VENTEA.MeshCollider, mapMesh)
+           .addComponent(VENTEA.RigidBody, { type: VENTEA.BodyType.Static });
+    }
     
-    const mapMesh = await VENTEA.Resources.load(VENTEA.GLTFMesh, 'Sponza.glb');
-    const map = scene.createEntity('Map');
-    map.addComponent(VENTEA.MeshRenderer, mapMesh)
-    .addComponent(VENTEA.MeshCollider, mapMesh)
-    .addComponent(VENTEA.RigidBody, { type: VENTEA.BodyType.Static })
 
     window.addEventListener('resize', (e) => {
       canvas.width = window.innerWidth;
@@ -75,7 +80,7 @@ canvas.onclick = () => {
         const yp = VENTEA.Utils.lerp(VENTEA.LastPosition.y[player.handle], player.position.y, alpha);
         const zp = VENTEA.Utils.lerp(VENTEA.LastPosition.z[player.handle], player.position.z, alpha);
 
-        controls.target = new VENTEA.Vector3(xp, yp + 0.5, zp);
+        controls.target = new VENTEA.Vector3(xp, yp + 0.4, zp);
         
         controls.update();
 
@@ -89,8 +94,8 @@ canvas.onclick = () => {
             newY = 4;
         }
 
-        const x = camera.target.x - player.position.x;
-        const z = camera.target.z - player.position.z;
+        const x = Math.sin(camera.yaw);
+        const z = -Math.cos(camera.yaw);
 
         let velX = 0;
         let velZ = 0;

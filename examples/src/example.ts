@@ -14,10 +14,7 @@ canvas.onclick = () => {
 (async () => {
     // Initializes the engine with WebGL and physics disabled
     const engine = new VENTEA.Engine(canvas);
-    await engine.init({
-        api: VENTEA.API.WebGL,
-        physics: false
-    });
+    await engine.init();
 
     // Creates perspective camera and first person controls
     const camera = new VENTEA.PerspectiveCamera(90, canvas.width / canvas.height, 0.01, 1000.0);
@@ -33,10 +30,10 @@ canvas.onclick = () => {
     light.position.set(1, 1, 1);
 
     const grid = scene.createEntity('Grid');
-    grid.addComponent(VENTEA.MeshRenderer, new VENTEA.GridMesh(100, 100));
+    grid.addComponent(VENTEA.MeshRenderer, new VENTEA.Mesh(new VENTEA.GridMesh(100, 100)));
 
     const box = scene.createEntity('Box');
-    box.addComponent(VENTEA.MeshRenderer, new VENTEA.BoxMesh(2, 2, 2));
+    box.addComponent(VENTEA.MeshRenderer, new VENTEA.Mesh(new VENTEA.BoxMesh(2, 2, 2)));
     box.position.set(0, 1, 0);
     
     // Resizes the canvas on window resize

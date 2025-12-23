@@ -172,6 +172,16 @@ namespace Engine {
         pose.p.y = pos.y;
         pose.p.z = pos.z;
 
+        const rot = o.rotation
+        const q = new Quat(0, 0, 0, 1);
+        quat.rotateY(q.buffer, q.buffer, rot.y);
+        quat.rotateX(q.buffer, q.buffer, rot.x);
+        quat.rotateZ(q.buffer, q.buffer, rot.z);
+        pose.q.x = q.x;
+        pose.q.y = q.y;
+        pose.q.z = q.z;
+        pose.q.w = q.w;
+
         const simulationFilter = new PhysX.PxFilterData(1, 1, 0, 0);
         const queryFilter = new PhysX.PxFilterData(o.eid, 1, 0, 0);
 
@@ -262,7 +272,7 @@ namespace Engine {
     export const step = (m: any) => {
         lastTime = startTime;
         startTime = performance.now();
-        let dt = (startTime - lastTime) * 0.001;
+        let dt = (startTime - lastTime);
         fps++;
 
         if (lastTime - fpsTime >= 1000) {

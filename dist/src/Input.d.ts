@@ -8,6 +8,7 @@ export declare class Input {
     static init(): void;
     static isKeyDown(key: string): boolean | undefined;
     static isMouseDown(mouse: number): boolean | undefined;
+    static setKeyDown(key: string, pressed: boolean): void;
     static getMouseX(): number;
     static getMouseY(): number;
     static getMouseDeltaX(): number;

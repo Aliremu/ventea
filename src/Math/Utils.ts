@@ -9,4 +9,8 @@ export namespace Utils {
 
     export const DEG_TO_RAD = Math.PI / 180;
     export const RAD_TO_DEG = 180 / Math.PI;
+
+    export const merge = <T>(value1: Partial<T> | undefined, value2: T): NonNullable<T> => {
+        return {...value2, ...value1};
+    }  
 }
